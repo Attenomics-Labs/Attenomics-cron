@@ -1,0 +1,19 @@
+import { neo4jDriver } from "../DB/neo4j.DB.js";
+
+/** Get all usernames from the graph */
+const getAllUser = async () => {
+    const session = neo4jDriver.session();
+    try {
+        const result = await session.run(
+            `MATCH (u:User {isBlocked:false}) RETURN u.username AS username`
+        );
+        return result.records.map(r => r.get("username"));
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return [];
+    } finally {
+        await session.close();
+    }
+};
+
+export { getAllUser };

@@ -1,0 +1,11 @@
+{
+  "watch": [
+    "src"
+  ],
+  "ignore": [
+    "scrapeProgress.json",
+    "data/*.json",
+    "node_modules"
+  ],
+  "ext": "js,mjs,json"
+}

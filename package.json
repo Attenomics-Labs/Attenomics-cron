@@ -1,0 +1,31 @@
+{
+  "name": "neo4j-node-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "cros": "^1.1.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.0",
+    "https": "^1.0.0",
+    "neo4j-driver": "^5.28.1",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.9",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "mocha": "11.1.0"
+  }
+}

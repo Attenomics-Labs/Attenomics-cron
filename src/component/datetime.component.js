@@ -22,4 +22,18 @@ const today = () => {
     return (new Date()).toISOString().slice(0, 10);
 }
 
-export { getDayIndex, fetchWithTimeout, FOUR_DAYS_MS, today };
+//generating sinceDate
+const getsinceDate = async () => {
+    const noofdate = 4;
+    const sinceDate = new Date(Date.now() - (24 * noofdate) * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2, "0");
+    return [
+        sinceDate.getUTCFullYear(),
+        pad(sinceDate.getUTCMonth() + 1),
+        pad(sinceDate.getUTCDate())
+    ].join("-") + "_" +
+        [pad(sinceDate.getUTCHours()), pad(sinceDate.getUTCMinutes()), pad(sinceDate.getUTCSeconds())]
+            .join(":") + "_UTC";
+}
+
+export { getDayIndex, fetchWithTimeout, FOUR_DAYS_MS, today, getsinceDate };

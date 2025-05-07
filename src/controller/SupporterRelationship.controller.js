@@ -18,36 +18,47 @@ export async function updateSupporterRelationships() {
       `MATCH (u:User) RETURN u.username AS username`
     );
     const creators = creatorsRes.records.map(r => r.get("username"));
-    const tweets = await session.run(
-      `MATCH (t:Tweet) RETURN t`
+    let tweets = {};
+    await session.run(
+      `MATCH (t:Tweet) WHERE  t.timestamp < $sinceTs RETURN t`,
+      { sinceTs }
     ).then(async (twt) => {
-      return twt.records.map(t => t.get('t').properties);
+      twt.records.map(t => {
+        const tweet = t.get('t').properties;
+        if (tweets[tweet['username']] == undefined) {
+          tweets[tweet['username']] = [tweet];
+        }
+        else {
+          tweets[tweet['username']].push(tweet);
+        }
+      });
     });
-    console.log(tweets.length);
     for (const creator of creators) {
       const mention = "@" + creator;
       console.log(`🔍 Searching for tweets mentioning @${creator}…`);
       // find all supporter tweets in last 24 h
+      if (tweets[creator] == undefined) {
+        continue;
+      }
       let tweetsRes = [];
-      tweets.map(t => {
-        // Check if tweet is not by creator and after the specified timestamp
-        if (t.username === creator || t.timestamp < sinceTs) {
+      for (const supporter of creators) {
+        if (supporter == creator) {
+          continue;
+        }
+        if (tweets[supporter] == undefined) {
+          continue;
+        }
+        tweets[supporter].map(t => {
           // Check the three conditions from the query
           const isReplyToCreator =
             t.isReply === true &&
             t.inReplyToStatusId !== null &&
-            tweets.some(orig =>
-              orig.tweetID === t.inReplyToStatusId &&
-              orig.username === creator
-            );
+            tweets[creator].some(orig => orig.tweetID === t.inReplyToStatusId);
 
           const isQuoteOfCreator =
             t.isQuoted === true &&
             t.conversationId !== null &&
-            tweets.some(orig =>
-              orig.tweetID === t.conversationId &&
-              orig.username === creator
-            );
+            tweets[creator].some(orig => orig.tweetID === t.conversationId);
 
           const containsMention =
             t.text.includes(mention);
@@ -55,20 +66,17 @@ export async function updateSupporterRelationships() {
           // Return true if any of the conditions are met
           if (isReplyToCreator || isQuoteOfCreator || containsMention) {
             tweetsRes.push({
-              supporter: t.username,
+              supporter: supporter,
               tweetID: t.tweetID,
               isReply: t.isReply,
               isQuoted: t.isQuoted,
               text: t.text
             })
           };
+        });
+      }
 
-        }
-
-      });
-      console.log(`${tweetsRes.length} ${tweets.length}`);
-      console.log(tweetsRes);
-      return;
+      console.log(`${tweetsRes.length} suppoters found for ${creator}`);
       for (const rec of tweetsRes) {
         const supporter = rec["supporter"];
         const tweetID = rec["tweetID"];

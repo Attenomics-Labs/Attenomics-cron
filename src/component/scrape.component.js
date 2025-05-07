@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import { TweetModel } from "../models/Tweet.models.js";
 import { neo4jDriver } from "../DB/neo4j.DB.js";
 import { UserModel } from "../models/User.Models.js";
+import { getsinceDate } from "./datetime.component.js";
 
 const API_KEY = process.env.TWITTER_API_KEY;
 const BASE_URL = "https://api.twitterapi.io/twitter";
@@ -81,19 +82,7 @@ export async function getTweetById(tweetId) {
   return tweets[0];
 }
 
-//generating sinceDate
-const getsinceDate = async () => {
-  const noofdate = 2;
-  const sinceDate = new Date(Date.now() - (24 * noofdate) * 60 * 60 * 1000);
-  const pad = n => String(n).padStart(2, "0");
-  return [
-    sinceDate.getUTCFullYear(),
-    pad(sinceDate.getUTCMonth() + 1),
-    pad(sinceDate.getUTCDate())
-  ].join("-") + "_" +
-    [pad(sinceDate.getUTCHours()), pad(sinceDate.getUTCMinutes()), pad(sinceDate.getUTCSeconds())]
-      .join(":") + "_UTC";
-}
+
 
 /**
  * ————— NEW: Fetch all tweets & replies from the last 48 hours,

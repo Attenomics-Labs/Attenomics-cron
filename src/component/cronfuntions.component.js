@@ -20,11 +20,11 @@ const cronfunction = async () => {
                 console.log("scraping tweet");
                 await promisefunction(scrapeAllUsers());
 
-                // console.log("computeRawPointsForAllUsers");
-                // await promisefunction(computeAttentionPoints());
+                console.log("computeRawPointsForAllUsers");
+                await promisefunction(computeAttentionPoints());
 
-                // console.log("normalizeAllUserPoints");
-                // await promisefunction(normalizeAllUserPoints());
+                console.log("normalizeAllUserPoints");
+                await promisefunction(normalizeAllUserPoints());
 
                 console.log("creating graph from user and creator");
                 await promisefunction(updateSupporterRelationships());

@@ -97,10 +97,10 @@ export async function updateSupporterRelationships() {
           // create or update SUPPORTS relationship
           await session.run(
             `
-          MATCH (a:User {username:$supporter}), (b:User {username:$creator})
-          MERGE (a)-[r:SUPPORTS {tweetID:$tweetID}]->(b)
-          SET r.type = $type, r.text = $text, r.updatedAt = datetime()
-          `,
+            MATCH (a:User {username:$supporter}), (b:User {username:$creator})
+            MERGE (a)-[r:SUPPORTS {tweetID:$tweetID}]->(b)
+            SET r.type = $type, r.text = $text, r.updatedAt = datetime()
+            `,
             { supporter, creator, tweetID, type, text: rec["text"] }
           );
         }

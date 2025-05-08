@@ -17,8 +17,8 @@ const cronfunction = async () => {
                 // console.log("Delete older than 4 days tweets");
                 // await promisefunction(deleteOldTweet());
 
-                // console.log("scraping tweet");
-                // await promisefunction(scrapeAllUsers());
+                console.log("scraping tweet");
+                await promisefunction(scrapeAllUsers());
 
                 // console.log("computeRawPointsForAllUsers");
                 // await promisefunction(computeAttentionPoints());

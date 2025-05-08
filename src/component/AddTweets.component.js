@@ -165,7 +165,8 @@ export const addparentnode = async (parentDetail) => {
             if (tweet_to_ID[parent.conversationId] == undefined) {
                 continue;
             }
-            if (parent.username !== username) {
+            const tweet = tweet_to_ID[parent.conversationId];
+            if (parent.username !== tweet.username) {
                 await session.run(
                     `CREATE (t:Tweet $props)`,
                     { props: tweet_to_ID[parent.conversationId] }

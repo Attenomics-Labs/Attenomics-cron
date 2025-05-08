@@ -2,6 +2,7 @@ import { neo4jDriver } from "../DB/neo4j.DB.js";
 import { loadProgress, saveProgress } from "../utils/ProgressStore.js";
 import { getAllUser } from "../component/users.component.js";
 import { addtweets } from "../component/AddTweets.component.js";
+import { today } from "../component/datetime.component.js";
 
 /*
 // scraping all userse 
@@ -9,6 +10,7 @@ import { addtweets } from "../component/AddTweets.component.js";
 export const scrapeAllUsers = async () => {
   const session = neo4jDriver.session();
   try {
+    const date = today();
     const users = await getAllUser();              // full list
     const { index, startedAt } = loadProgress();    // { index: number, startedAt: ms }
     // let index = 0, startedAt = 0;
@@ -23,57 +25,54 @@ export const scrapeAllUsers = async () => {
     // });
     console.log(`▶ Resuming scrape at user #${index} / ${users.length}`);
     console.log(`   run started at: ${new Date(startedAt).toLocaleString()}`);
-
+    let usernames = {};
+    await session.run(
+      `MATCH (s:scraped {date:$date}) return s`,
+      {
+        date
+      }
+    ).then((val) => {
+      val.records.map(el => {
+        const user = el.get('s').properties;
+        usernames[user['username']] = true;
+      })
+    });
     for (let i = index; i < users.length; i++) {
       const username = users[i];
-      console.log(`   • Scraping @${username}(${i + 1}/${users.length})`);
+      if (usernames[username] != undefined) {
+        saveProgress({ index: i + 1, startedAt });
+        console.log(`   • Skip Scraping Done for @${username}`);
+        continue;
+      }
+      const isexist = await session.run(
+        `MATCH (s:scraped {date:$date , username:$username}) return s`,
+        {
+          date,
+          username
+        }
+      );
       try {
         await addtweets(username);
-
         // advance and persist progress
         saveProgress({ index: i + 1, startedAt });
-        const isexist = await session.run(
-          `MATCH(p: Progress)
-            SET p.index = '${i + 1}', p.startedAt = '${startedAt}' RETURN p
-          `,
-        )
-        if (isexist.records.length == 0) {
-          const props = {
-            'index': i + 1,
-            'startedAt': startedAt
+        await session.run(
+          `create (s:scraped $props)`,
+          {
+            props: {
+              'username': username,
+              'date': date,
+            }
           }
-          await session.run(
-            `create(p: Progress $props) RETURN p
-            `,
-            { props }
-          )
-        }
+        );
       } catch (err) {
         console.error(`❌ Error at @${username}: `, err.message);
         // stop here so next run picks up at the same index
         return;
       }
     }
-
     // all done → reset for next full run
     console.log("✅ Finished scraping all users, resetting progress.");
     saveProgress({ index: 0, startedAt: Date.now() });
-    const isexist = await session.run(
-      `MATCH(p: Progress)
-        SET p.index = '${0}', p.startedAt = '${Date.now()}' RETURN p
-      `,
-    )
-    if (isexist.records.length == 0) {
-      const props = {
-        'index': 0,
-        'startedAt': Date.now()
-      }
-      await session.run(
-        `create(p: Progress $props) RETURN p
-      `,
-        { props }
-      )
-    }
   } catch (error) {
     console.log("Scraping users Error", error);
   }

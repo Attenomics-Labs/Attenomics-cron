@@ -23,9 +23,9 @@ export const updateTweetMetricsDailyForAttentionCampaign = async () => {
     try {
         // 1) Load all tweets + timestamps
         const allRes = await session.run(`
-      MATCH (t:Tweet)
-      RETURN t.tweetID AS id, t.timestamp AS ts
-    `);
+            MATCH (t:Tweet)
+            RETURN t.tweetID AS id, t.timestamp AS ts
+            `);
 
         const allTweets = allRes.records.map(r => {
             const raw = r.get("ts");

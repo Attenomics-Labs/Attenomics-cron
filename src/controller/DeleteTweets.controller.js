@@ -21,7 +21,7 @@ const deleteOldTweet = async () => {
     console.log(` current ${time / 1000} ans after 4 days ${date}`);
     // 1) Load all tweets + timestamps
     const allRes = await session.run(`
-      MATCH (t:Tweet) Where t.timestamp<$date
+      MATCH (t:Tweet) Where t.timestamp<$date 
       DETACH DELETE t;
     `, { date }
     );

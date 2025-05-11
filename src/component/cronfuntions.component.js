@@ -3,6 +3,7 @@ import { computeAttentionPoints, normalizeAllUserPoints } from "../controller/At
 import { scrapeAllUsers } from "../controller/ScrapeTweets.controller.js";
 import { updateSupporterRelationships } from "../controller/SupporterRelationship.controller.js";
 import { scrapeUsersnames } from "../controller/ScrapeUsersnames.controller.js";
+import { processAllSupporters } from "../controller/SupporterScores.controller.js";
 import { promisefunction } from "../utils/AsyncHandler.utils.js";
 
 
@@ -20,14 +21,19 @@ const cronfunction = async () => {
                 // console.log("scraping tweet");
                 // await promisefunction(scrapeAllUsers());
 
-                // console.log("computeRawPointsForAllUsers");
-                // await promisefunction(computeAttentionPoints());
+                console.log("computeRawPointsForAllUsers");
+                await promisefunction(computeAttentionPoints());
 
-                // console.log("normalizeAllUserPoints");
-                // await promisefunction(normalizeAllUserPoints());
+                console.log("normalizeAllUserPoints");
+                await promisefunction(normalizeAllUserPoints());
 
-                // console.log("creating graph from user and creator");
-                // await promisefunction(updateSupporterRelationships());
+                console.log("creating graph from user and creator");
+                await promisefunction(updateSupporterRelationships());
+
+                console.log("processAllSupporters");
+                await promisefunction(processAllSupporters());
+
+
 
                 resolve(true);
             } catch (error) {

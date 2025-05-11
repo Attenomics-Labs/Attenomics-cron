@@ -7,12 +7,12 @@ import { today } from "../component/datetime.component.js";
 
 
 /**
- * Take a raw Neo4j Tweet node’s `.properties` and
+ * Take a raw Neo4j Tweet node's `.properties` and
  * massage it into the exact shape your FastAPI endpoint wants.
  */
 
-// const modelendpoint = "http://localhost:8000";
-const modelendpoint = "https://1de3-103-120-255-1.ngrok-free.app";
+const modelendpoint = "http://localhost:8000";
+// const modelendpoint = "https://1de3-103-120-255-1.ngrok-free.app";
 
 export async function computeAttentionPoints() {
   console.log("🔔 Starting computeAttentionPoints…");
@@ -60,11 +60,58 @@ export async function computeAttentionPoints() {
       // Debug: log payload size
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
 
+      if (tweets.length === 0) {
+        console.log(`    ⚠️ No tweets found for @${username}, skipping...`);
+        continue;
+      }
+
+      // Prepare payload for new endpoint format
+      const payload = {
+        tweets: tweets.map(tweet => ({
+          tweet: tweet.text,
+          likes: tweet.likes_total || 0,
+          likes_day0: tweet.likes_day0 || 0,
+          likes_day1: tweet.likes_day1 || 0,
+          likes_day2: tweet.likes_day2 || 0,
+          likes_day3: tweet.likes_day3 || 0,
+          likes_total: tweet.likes_total || 0,
+          retweets: tweet.retweets_total || 0,
+          retweets_day0: tweet.retweets_day0 || 0,
+          retweets_day1: tweet.retweets_day1 || 0,
+          retweets_day2: tweet.retweets_day2 || 0,
+          retweets_day3: tweet.retweets_day3 || 0,
+          retweets_total: tweet.retweets_total || 0,
+          bookmarkCount: tweet.bookmarkCount_total || 0,
+          bookmarkCount_day0: tweet.bookmarkCount_day0 || 0,
+          bookmarkCount_day1: tweet.bookmarkCount_day1 || 0,
+          bookmarkCount_day2: tweet.bookmarkCount_day2 || 0,
+          bookmarkCount_day3: tweet.bookmarkCount_day3 || 0,
+          bookmarkCount_total: tweet.bookmarkCount_total || 0,
+          views: tweet.views_total || 0,
+          views_day0: tweet.views_day0 || 0,
+          views_day1: tweet.views_day1 || 0,
+          views_day2: tweet.views_day2 || 0,
+          views_day3: tweet.views_day3 || 0,
+          views_total: tweet.views_total || 0,
+          replies: tweet.replies || 0,
+          isQuoted: tweet.isQuoted || false,
+          isReply: tweet.isReply || false,
+          isEdited: tweet.isEdited || false,
+          tweetID: tweet.tweetID,
+          username: tweet.username,
+          name: tweet.name,
+          userId: tweet.userId,
+          timestamp: tweet.timestamp,
+          permanentUrl: tweet.permanentUrl,
+          conversationId: tweet.conversationId
+        }))
+      };
+
       // call your FastAPI batch endpoint
-      const apiRes = await fetch(`${modelendpoint}/compute_scores_batch`, {
+      const apiRes = await fetch(`${modelendpoint}/creator_tweet_score/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tweets })
+        body: JSON.stringify(payload)
       });
 
       if (apiRes.status === 422) {
@@ -79,20 +126,15 @@ export async function computeAttentionPoints() {
         continue;
       }
 
-      const { scores } = await apiRes.json();
+      const response = await apiRes.json();
+      const attentionScore = response.score || 0;
+      console.log(`    🧮 attentionScore=${attentionScore.toFixed(2)}`);
 
-      // sum attention_score
-      const rawPoints = scores.reduce(
-        (sum, s) => sum + (s.attention_score ?? 0),
-        0
-      );
-      console.log(`    🧮 rawPoints=${rawPoints.toFixed(2)}`);
-
-      // Fixed Cypher query - create the Attentions node and connect it to User in one query
+      // Create the Attentions node and connect it to User
       const props = {
         username: username,
         date: date,
-        Attention: rawPoints
+        Attention: attentionScore
       };
 
       await session.run(

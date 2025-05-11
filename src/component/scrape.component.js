@@ -156,7 +156,7 @@ const adduserByusername = async (username) => {
       const user = await getUserInfo(username);
       if (user != null) {
         const props = UserModel(user);
-        const result = await session.run(
+        await session.run(
           `CREATE (u:User $props) RETURN u`, { props }
         );
       }

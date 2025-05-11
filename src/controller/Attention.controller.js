@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import { getWriteSession } from "../DB/neo4j.DB.js";
 import { normalizeTweet } from "../models/Tweet.models.js";
 import { today } from "../component/datetime.component.js";
+import { client } from "../DB/Postgress.DB.js";
 
 
 
@@ -20,20 +21,27 @@ export async function computeAttentionPoints() {
   const date = new Date(today()).getTime();
   try {
     // 1) load all usernames
-    const usersRes = await session.run(
-      `MATCH (u:User) RETURN u.username AS username`
+    // const usersRes = await session.run(
+    //   `MATCH (u:User) RETURN u.username AS username`
+    // );
+    const usersRes = await client.query(
+      `SELECT username FROM users;`
     );
-    if (usersRes.records.length == 0) {
+    if (usersRes.rows.length == 0) {
       console.log("User Not Found");
       return;
     }
-    const usernames = usersRes.records.map(r => r.get("username"));
+    const usernames = usersRes.rows.map(r => r['username']);
     console.log(`👥 Found ${usernames.length} users`);
-
     // 2) for each user
     for (const username of usernames) {
       console.log(`  ▶️  Processing @${username}`);
-      const isexist = await session.run(
+      return;
+      const isexist = await client.query(
+        `SELECT * FROM attentions WHERE username=${username}::TEXT AND date=${date}`
+      );
+
+      await session.run(
         `
         MATCH (a:Attentions {username:$username, date: $date})
         RETURN a

@@ -2,12 +2,15 @@ import { neo4jDriver } from "../DB/neo4j.DB.js";
 import { getTweetById, getTweetsByIds, scrapeTweets } from "../component/scrape.component.js";
 import { FOUR_DAYS_MS, getDayIndex } from "../component/datetime.component.js";
 import { scrapeTweetById } from "../component/scrape.component.js";
+import { client } from "../DB/Postgress.DB.js";
+import { insertTweetQuery, Tweetvalues, updateTweetQuery, updateTweetvalues } from "../models/Tweet.models.js";
+import { insertPostQuery, postvalues } from "../models/posts.model.js";
+import { insertreplyQuery, replyvalues } from "../models/Reply.model.js";
 
 /**
  * Scrape & store all tweets for a single user
  */
 export const addtweets = async (username) => {
-    const session = neo4jDriver.session();
     try {
         // NEW: past 4 day scraper
         const tweets = await scrapeTweets(username);
@@ -24,20 +27,15 @@ export const addtweets = async (username) => {
 
         // which ones already in Neo4j?
         let seen = {};
-        await session.executeWrite(tx =>
-            Promise.all(recent.map(t =>
-                tx.run(
-                    `MATCH (x:Tweet {tweetID:$tid}) 
-            RETURN x`,
-                    { tid: t.tweetID }
-                ).then(r => {
-                    if (r.records.length > 0) {
-                        // r.records
-                        seen[t.tweetID] = r.records[0].get('x').properties;
-                    }
-                })
-            ))
-        );
+        await Promise.all(recent.map(t =>
+            client.query(
+                `SELECT * from tweets WHERE tweet_id = ${t.tweetID}::TEXT`
+            ).then(r => {
+                if (r.rows.length > 0) {
+                    seen[t.tweetID] = r.rows[0];
+                }
+            })
+        ));
         let tweetarr = [];
         let reply = [];
         let updates = [];
@@ -70,6 +68,7 @@ export const addtweets = async (username) => {
                     if (t.inReplyToStatusId !== t.conversationId) {
                         parentDetail.push(
                             {
+
                                 'conversationId': t.conversationId,
                                 'tweetID': t.tweetID,
                                 'username': t.username
@@ -78,7 +77,7 @@ export const addtweets = async (username) => {
                     }
                     reply.push(
                         {
-                            tid: t.tweetID, pid: t.inReplyToStatusId
+                            reply_id: t.tweetID, tweet_id: t.inReplyToStatusId
                         }
                     )
                 }
@@ -95,43 +94,42 @@ export const addtweets = async (username) => {
             }
         }
         addparentnode(parentDetail);
-        const result = await session.run(
-            `UNWIND $tweetarr AS tweetData
-         MERGE (u:User {username: tweetData.username})
-         CREATE (t:Tweet) SET t = tweetData
-         CREATE (u)-[:Post]->(t)
-         RETURN count(t)`,
-            { tweetarr }
-        );
 
-        console.log(`Created ${result.records[0].get('count(t)')} tweets with user relationships`);
+        tweetarr.map(async el => {
+            const values = Tweetvalues(el);
+            const postvalue = postvalues({
+                username: el.username,
+                tweetID: el.tweetID
+            });
+            await client.query(insertTweetQuery, values);
+            await client.query(insertPostQuery, postvalue);
+        });
 
-        const replyres = await session.run(
-            `UNWIND $reply As reply 
-            MATCH(a: Tweet { tweetID: reply.tid }), (b: Tweet { tweetID: reply.pid })
-            CREATE (a) - [R: Reply] -> (b)
-            RETURN count(R)            
-            `,
-            { reply }
-        );
+        await client.query('COMMIT');
 
-        console.log(`Created ${replyres.records[0].get('count(R)')} tweets with rely relationships`);
+        console.log(`Created tweets with user relationships`);
 
-        const updateres = await session.run(
-            `UNWIND $updates As update 
-            MATCH(t: Tweet { tweetID: update.tweetID })
-            SET t = update
-            RETURN count(t)            
-            `,
-            { updates }
-        );
-        console.log(`Created ${updateres.records[0].get('count(t)')} tweet updates`);
+        reply.map(async el => {
+            const values = replyvalues(el);
+            await client.query(insertreplyQuery, values);
+        });
+
+
+        await client.query('COMMIT');
+
+        console.log(`Created  tweets with rely relationships`);
+
+        updates.map(async el => {
+            const values = updateTweetvalues(el);
+            await client.query(updateTweetQuery, values);
+        });
+
+        await client.query("COMMIT");
+        console.log(`Created tweets are updated`);
 
     } catch (err) {
         console.error("addtweets:", err);
         throw err;
-    } finally {
-        await session.close();
     }
 };
 
@@ -141,16 +139,17 @@ export const addtweets = async (username) => {
  */
 // pass as a batch not individual
 export const addparentnode = async (parentDetail) => {
-    const session = neo4jDriver.session();
+    // const session = neo4jDriver.session();
     try {
         let tweetids = [];
         let repeat = {};
         for (const detail of parentDetail) {
-            const exists = await session.run(
-                `MATCH (t:Tweet {tweetID:$cid}) RETURN t`, { cid: detail.conversationId }
+            const exists = await client.query(
+                `SELECT * FROM tweets WHERE tweet_id = ${detail.conversationId}::TEXT`
             );
-            if (exists.records.length == 0 && repeat[detail.conversationId] == undefined) {
+            if (exists.rows.length == 0 && repeat[detail.conversationId] == undefined) {
                 tweetids.push(detail.conversationId);
+                repeat[detail.conversationId] = true;
             }
         }
         // NEW: use direct getTweetById for missing parent
@@ -167,22 +166,22 @@ export const addparentnode = async (parentDetail) => {
             }
             const tweet = tweet_to_ID[parent.conversationId];
             if (parent.username !== tweet.username) {
-                await session.run(
-                    `CREATE (t:Tweet $props)`,
-                    { props: tweet_to_ID[parent.conversationId] }
-                );
-                await session.run(
-                    `
-                    MATCH (a:Tweet {tweetID:$tid}), (b:Tweet {tweetID:$cid})
-                    CREATE (a)-[:Reply]->(b)
-                    `,
-                    { tid: parent.tweetID, cid: parent.conversationId }
-                );
+                const values = Tweetvalues(tweet);
+                const postvalue = postvalues({
+                    username: tweet.username,
+                    tweetID: tweet.tweetID
+                });
+                await client.query(insertTweetQuery, values);
+                await client.query(insertPostQuery, postvalue);
+                await client.query('COMMIT');
+                const replyvalue = replyvalues({
+                    reply_id: parent.tweetID, tweet_id: parent.conversationId
+
+                });
+                await client.query(insertreplyQuery, replyvalue);
             }
         }
     } catch (err) {
         console.error("addparentnode:", err);
-    } finally {
-        await session.close();
     }
 };

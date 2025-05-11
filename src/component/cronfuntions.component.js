@@ -12,16 +12,16 @@ const cronfunction = async () => {
         await new Promise(async (resolve, reject) => {
             try {
                 // console.log("scraping usernames from kiato");
-                // await promisefunction(scrapeUsersnames())
+                // await promisefunction(scrapeUsersnames());
 
-                console.log("Delete older than 4 days tweets");
-                await promisefunction(deleteOldTweet());
+                // console.log("Delete older than 4 days tweets");
+                // await promisefunction(deleteOldTweet());
 
                 // console.log("scraping tweet");
                 // await promisefunction(scrapeAllUsers());
 
-                // console.log("computeRawPointsForAllUsers");
-                // await promisefunction(computeAttentionPoints());
+                console.log("computeRawPointsForAllUsers");
+                await promisefunction(computeAttentionPoints());
 
                 // console.log("normalizeAllUserPoints");
                 // await promisefunction(normalizeAllUserPoints());

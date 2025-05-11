@@ -6,6 +6,11 @@ import { dirname, resolve } from "path";
 import cron from "node-cron";
 import { verifyConnectivity } from "./DB/neo4j.DB.js";
 import { cronfunction } from "./component/cronfuntions.component.js";
+import { connectDB } from "./DB/Postgress.DB.js";
+import { addusertopostgress } from "./scripts/usercreate.scripts.js";
+import { addTweettopostgress } from "./scripts/tweetcreate.scripts.js";
+import { getAllUser } from "./component/users.component.js";
+import { addAttentionstopostgress } from "./scripts/attentionmigrate.cript.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,14 +24,19 @@ app.use(express.static(resolve(__dirname, "../public")));
 
 
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 
 
 app.listen(PORT, async () => {
-  await verifyConnectivity();
-  await cronfunction();
+  await connectDB();
+  // await cronfunction();
+  // await addAttentionstopostgress();
+  // await getAllUser();
+  // await addTweettopostgress();
   console.log(`✅ Server running on port ${PORT}`);
 });
+
+// cron.schedule("0 0 * * *", cronfunction);
 
 app.get("/api/", (req, res) => {
   return res.status(200).json(
@@ -38,4 +48,3 @@ app.get("/api/", (req, res) => {
 
 
 
-// cron.schedule("0 0 * * *", cronfunction);

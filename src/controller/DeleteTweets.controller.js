@@ -2,6 +2,8 @@
 
 import { neo4jDriver } from "../DB/neo4j.DB.js";
 import { FOUR_DAYS_MS, today } from "../component/datetime.component.js";
+import fs from "fs";
+import path from "path";
 
 /** split an array into N-sized chunks */
 function chunkArray(arr, size) {
@@ -11,7 +13,7 @@ function chunkArray(arr, size) {
   }
   return out;
 }
-
+let Tweet_FILE = path.resolve(process.cwd(), "./public/DeletedTweet1.json");
 
 const deleteOldTweet = async () => {
   const session = neo4jDriver.session();
@@ -22,38 +24,27 @@ const deleteOldTweet = async () => {
     // 1) Load all tweets + timestamps
     const allRes = await session.run(`
       MATCH (t:Tweet) Where t.timestamp<$date 
+      Limit 20000
+      return t;
+    `, { date }
+    ).then((val) => {
+      let tweet = [];
+      val.records.map(el => tweet.push(el.get('t').properties));
+      return tweet;
+    });
+    // const jsonData = JSON.stringify(allRes, null, 2);
+
+    // fs.writeFileSync(Tweet_FILE, jsonData);
+    
+    const deleteres = await session.run(`
+      MATCH (t:Tweet) Where t.timestamp<$date 
+      Limit 10000
       DETACH DELETE t;
     `, { date }
-    );
-    // const allTweets = allRes.records.map(r => {
-    //   const raw = r.get("ts");
-    //   const timestamp = (raw && typeof raw.toNumber === "function")
-    //     ? raw.toNumber()
-    //     : Number(raw);
-    //   return { tweetID: r.get("id"), timestamp };
-    // });
-
-    // console.log(`📥 Loaded ${allTweets.length} tweets from Neo4j`);
-    // // for (const { tweetID, timestamp } of allTweets) {
-    // //   if (date > timestamp) {
-    // //     deleteList.push(tweetID);
-    // //   }
-    // // }
-    // console.log(`🗑 Queued ${deleteList.length} tweets older than 4 days for deletion`);
-    // // 6) Bulk-delete queued IDs
-    // if (deleteList.length) {
-    //   console.log(`🗑 Deleting ${deleteList.length} tweets in one go`);
-    //   for (const chunk of chunkArray(deleteList, 100)) {
-    //     await session.run(
-    //       `
-    //       UNWIND $ids AS id
-    //       MATCH (t:Tweet {tweetID:id})
-    //       DETACH DELETE t
-    //       `,
-    //       { ids: chunk }
-    //     );
-    //   }
-    // }
+    ).then((val) => {
+      return val.summary.counters.updates().nodesDeleted;
+    });
+    console.log(`${deleteres} old tweets deleted`);
   } catch (error) {
     console.log("Deleting Error ", error);
   }

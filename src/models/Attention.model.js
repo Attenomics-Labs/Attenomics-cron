@@ -22,7 +22,7 @@ RETURNING id;`;
 
 const Attentionvalues = (attention) => [
     attention.username,
-    typeof (attention.date) == Number ? attention.date : 0,                // $2 - username     // $3 - date
+    attention.date,                // $2 - username     // $3 - date
     attention.Attention         // $4 - attention_score
 ];
 

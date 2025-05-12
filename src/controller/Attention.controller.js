@@ -4,6 +4,8 @@ import { getWriteSession } from "../DB/neo4j.DB.js";
 import { normalizeTweet } from "../models/Tweet.models.js";
 import { today } from "../component/datetime.component.js";
 import { client } from "../DB/Postgress.DB.js";
+import { Attentionvalues, insertAttentionquery } from "../models/Attention.model.js";
+import { insertValuequery, normsvalues } from "../models/Values.model.js";
 
 
 
@@ -12,8 +14,8 @@ import { client } from "../DB/Postgress.DB.js";
  * massage it into the exact shape your FastAPI endpoint wants.
  */
 
-// const modelendpoint = "http://localhost:8000";
-const modelendpoint = "https://1de3-103-120-255-1.ngrok-free.app";
+const modelendpoint = "http://localhost:8000";
+// const modelendpoint = "https://1de3-103-120-255-1.ngrok-free.app";
 
 export async function computeAttentionPoints() {
   console.log("🔔 Starting computeAttentionPoints…");
@@ -34,40 +36,34 @@ export async function computeAttentionPoints() {
     const usernames = usersRes.rows.map(r => r['username']);
     console.log(`👥 Found ${usernames.length} users`);
     // 2) for each user
+    let cnt = 0;
     for (const username of usernames) {
       console.log(`  ▶️  Processing @${username}`);
-      return;
+      if (cnt <= 0) {
+        cnt++;
+        continue;
+      }
       const isexist = await client.query(
-        `SELECT * FROM attentions WHERE username=${username}::TEXT AND date=${date}`
+        `SELECT * FROM attentions WHERE username='${username}' AND date=${date}`
       );
-
-      await session.run(
-        `
-        MATCH (a:Attentions {username:$username, date: $date})
-        RETURN a
-        `,
-        { username, date }
-      );
-      if (isexist.records.length != 0) {
+      if (isexist.rows.length != 0) {
         console.log(`skiping Attention alredy exist`);
         continue;
       }
       // load that user's tweets
-      const tweetsRes = await session.run(
-        `
-        MATCH (u:User {username:$username})-[:Post]->(t:Tweet)
-        RETURN t
-        `,
-        { username }
+      const tweetsRes = await client.query(
+        `SELECT * FROM tweets 
+        WHERE username = '${username}' 
+        AND timestamp > NOW() - INTERVAL '4 days';`
       );
 
-      const tweets = tweetsRes.records.map(r =>
-        normalizeTweet(r.get("t").properties)
-      );
-
+      let tweets = tweetsRes.rows;
+      tweets.map(el => {
+        const milliseconds = new Date(el['timestamp']).getTime();
+        el['timestamp'] = milliseconds;
+      });
       // Debug: log payload size
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
-
       // call your FastAPI batch endpoint
       const apiRes = await fetch(`${modelendpoint}/compute_scores_batch`, {
         method: "POST",
@@ -96,24 +92,18 @@ export async function computeAttentionPoints() {
       );
       console.log(`    🧮 rawPoints=${rawPoints.toFixed(2)}`);
 
+      console.log(rawPoints);
+
       // Fixed Cypher query - create the Attentions node and connect it to User in one query
       const props = {
         username: username,
         date: date,
         Attention: rawPoints
       };
-
-      await session.run(
-        `
-        MATCH (u:User {username: $username})
-        CREATE (a:Attentions $props)
-        CREATE (u)-[:HAS_POINTS]->(a)
-        RETURN a
-        `,
-        { props, username }
-      );
+      const values = Attentionvalues(props);
+      await client.query(insertAttentionquery, values);
+      await client.query("COMMIT");
     }
-
     console.log("🔔 computeAttentionPoints done");
   } catch (err) {
     console.error("❌ computeAttentionPoints error:", err);
@@ -128,23 +118,16 @@ export async function normalizeAllUserPoints() {
   const date = new Date(today()).getTime();
   try {
     // 1) load all Points for today
-    const res = await session.run(
-      `
-      MATCH (p:Attentions {date:$date})
-      RETURN p.username AS username, p.Attention AS raw
-      `,
-      { date }
+    const res = await client.query(
+      `SELECT username, attention_score FROM attentions WHERE date=${date}`
     );
-
-    if (res.records.length == 0) {
+    if (res.rows.length == 0) {
       return;
     }
-
-    const recs = res.records.map(r => ({
-      username: r.get("username"),
-      raw: Number(r.get("raw")?.toNumber?.() ?? r.get("raw") ?? 0)
+    const recs = res.rows.map(r => ({
+      username: r["username"],
+      raw: Number(r["attention_score"] ?? 0)
     }));
-
     const totalRaw = recs.reduce((sum, x) => sum + x.raw, 0);
     console.log(`  📊 Total rawPoints = ${totalRaw.toFixed(2)}`);
 
@@ -153,13 +136,10 @@ export async function normalizeAllUserPoints() {
 
     for (let i = 0; i < recs.length; i++) {
       const { username, raw } = recs[i];
-      const isexist = await session.run(
-        ` MATCH (v:Values {date:$date , username:$username})
-          RETURN v
-        `,
-        { date, username }
+      const isexist = await client.query(
+        ` SELECT * FROM values WHERE date = ${date} AND username='${username}'`
       );
-      if (isexist.records.length != 0) {
+      if (isexist.rows.length != 0) {
         console.log(`skiping user ${username}`);
         continue;
       }
@@ -172,25 +152,14 @@ export async function normalizeAllUserPoints() {
         norm: norm,
         rank: rank
       }
-      await session.run(
-        `
-        CREATE (v:Values $props) 
-        WITH v
-        MATCH (a:Attentions {username:$username,date:$date})
-        WITH a
-        MATCH (u:User {username:$username}) SET u.ranks = $rank 
-        CREATE (a)-[:HAS_Values]->(v)
-        RETURN v
-        `,
-        { props, username, date, rank }
-      );
-      console.log(`    ✨ @${username}: normalized=${norm.toFixed(2)}, rank=${rank}`);
+      console.log(props);
+      const value = normsvalues(props);
+      await client.query(insertValuequery, value);
+      await client.query('COMMIT');
+      console.log(`    ✨ @${username}: normalized = ${norm.toFixed(2)}, rank = ${rank}`);
     }
-
     console.log("🔔 normalizeAllUserPoints done");
   } catch (err) {
     console.error("❌ normalizeAllUserPoints error:", err);
-  } finally {
-    await session.close();
   }
 }

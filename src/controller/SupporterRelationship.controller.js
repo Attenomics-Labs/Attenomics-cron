@@ -1,4 +1,6 @@
+import { getAllUser } from "../component/users.component.js";
 import { getWriteSession } from "../DB/neo4j.DB.js";
+import { client } from "../DB/Postgress.DB.js";
 
 /**
  * Every 24 h, for each registered user (creator), find
@@ -6,25 +8,20 @@ import { getWriteSession } from "../DB/neo4j.DB.js";
  * that reply, quote or mention them—and create a SUPPORTS edge.
  */
 export async function updateSupporterRelationships() {
-  const session = getWriteSession();
   try {
     console.log("🔔 Starting updateSupporterRelationships…");
-
     // cutoff timestamp (seconds)
-    const sinceTs = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
+    // const sinceTs = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
 
     // fetch all creators
-    const creatorsRes = await session.run(
-      `MATCH (u:User) RETURN u.username AS username`
-    );
-    const creators = creatorsRes.records.map(r => r.get("username"));
+    const creators = await getAllUser();
     let tweets = {};
-    await session.run(
-      `MATCH (t:Tweet) WHERE  t.timestamp < $sinceTs RETURN t`,
-      { sinceTs }
+    await client.query(
+      `SELECT * FROM tweets 
+        WHERE timestamp > NOW() - INTERVAL '1 day';`
     ).then(async (twt) => {
-      twt.records.map(t => {
-        const tweet = t.get('t').properties;
+      twt.rows.map(t => {
+        const tweet = t;
         if (tweets[tweet['username']] == undefined) {
           tweets[tweet['username']] = [tweet];
         }
@@ -87,31 +84,29 @@ export async function updateSupporterRelationships() {
           `  Found tweet ${tweetID} by @${supporter} (${type})`
         );
         // check the existence of supports
-        const isexist = await session.run(
-          `
-          MATCH p=()-[:SUPPORTS {tweetID:$tweetID}]->() RETURN p;
-          `,
-          { tweetID }
+        const isexist = await client.query(
+          `SELECT * FROM supporters WHERE creator ='${creator}' AND suppoter ='${supporter}' AND tweet_id='${tweetID}';`
         );
-        if (isexist.records.length == 0) {
+        if (isexist.rows.length == 0) {
           // create or update SUPPORTS relationship
-          await session.run(
-            `
-            MATCH (a:User {username:$supporter}), (b:User {username:$creator})
-            MERGE (a)-[r:SUPPORTS {tweetID:$tweetID}]->(b)
-            SET r.type = $type, r.text = $text, r.updatedAt = datetime()
-            `,
-            { supporter, creator, tweetID, type, text: rec["text"] }
-          );
+          const props = {
+            "creator": creator,
+            "suppoter": supporter,
+            "tweet_id": tweetID,
+            "type": type,
+            "text": rec["text"],
+          };
+          const value = supportervalues(props);
+          console.log(value);
+          await client.query(insertSuppoterquery, value);
+          await client.query('COMMIT');
         }
       }
     }
-
+    console.log(tweets['anymose96']);
     console.log("🔔 updateSupporterRelationships done");
   } catch (err) {
     console.error("❌ updateSupporterRelationships error:", err);
-  } finally {
-    await session.close();
   }
 }
 

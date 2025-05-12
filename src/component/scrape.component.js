@@ -102,7 +102,6 @@ export async function scrapeTweets(username) {
     // fetch page
     const { tweets: raw, has_next_page, next_cursor } = await request(path);
     console.log("📝 page cursor for", username, ":", next_cursor, "has_next_page:", has_next_page);
-
     allRaw.push(...raw);
     cursor = has_next_page ? next_cursor : null;
   } while (cursor);

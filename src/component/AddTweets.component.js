@@ -119,13 +119,13 @@ export const addtweets = async (username) => {
 
         console.log(`Created  tweets with rely relationships`);
 
-        updates.map(async el => {
-            const values = updateTweetvalues(el);
-            await client.query(updateTweetQuery, values);
-        });
+        // updates.map(async el => {
+        //     const values = updateTweetvalues(el);
+        //     await client.query(updateTweetQuery, values);
+        // });
 
-        await client.query("COMMIT");
-        console.log(`Created tweets are updated`);
+        // await client.query("COMMIT");
+        // console.log(`Created tweets are updated`);
 
     } catch (err) {
         console.error("addtweets:", err);

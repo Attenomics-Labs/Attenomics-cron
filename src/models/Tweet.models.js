@@ -205,7 +205,7 @@ const Tweetvalues = (tweet) => [
 ];
 
 const updateTweetvalues = (tweet) => [
-    tweet.tweetID ?? tweet.id,
+    tweet.tweet_id,
     Math.round(parseFloat(tweet.views ?? 0)),
     Math.round(parseFloat(tweet.likes ?? 0)),
     Math.round(parseFloat(tweet.replies ?? 0)),

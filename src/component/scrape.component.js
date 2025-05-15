@@ -63,7 +63,6 @@ export async function getTweetsByIds(tweetIds) {
   const results = [];
   for (const batch of batches) {
     const idsParam = batch.map(encodeURIComponent).join(",");
-    console.log(idsParam);
     const { tweets } = await request(
       `/tweets?tweet_ids=${idsParam}`
     );

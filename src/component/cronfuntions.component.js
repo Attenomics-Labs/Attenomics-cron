@@ -4,7 +4,7 @@ import { scrapeAllUsers } from "../controller/ScrapeTweets.controller.js";
 import { updateSupporterRelationships } from "../controller/SupporterRelationship.controller.js";
 import { scrapeUsersnames } from "../controller/ScrapeUsersnames.controller.js";
 import { promisefunction } from "../utils/AsyncHandler.utils.js";
-import { updateTweetMetricsDaily } from "./updateTweet.component.js";
+import { updateTweetMetricsDaily } from "../controller/UpdateTweetMatrics.controller.js";
 
 
 const cronfunction = async () => {
@@ -22,7 +22,7 @@ const cronfunction = async () => {
                 // await promisefunction(scrapeAllUsers());
 
                 console.log("update prev tweets");
-                await promisefunction(updateTweetMetricsDaily());
+                // await promisefunction(updateTweetMetricsDaily());
 
                 console.log("computeRawPointsForAllUsers");
                 // await promisefunction(computeAttentionPoints());

@@ -5,8 +5,25 @@ const createstatusquery = `
     date VARCHAR(255) NOT NULL);
 `;
 
+const createupdatesstatusquery = `
+    CREATE TABLE IF NOT EXISTS updatestatus (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    date VARCHAR(255) NOT NULL);
+`;
+
 const insertStatusquery = `
     INSERT INTO Status (
+    username,
+    date
+) VALUES (
+    $1, 
+    $2
+)
+RETURNING id;`;
+
+const insertupdateStatusquery = `
+    INSERT INTO updatestatus (
     username,
     date
 ) VALUES (
@@ -20,4 +37,4 @@ const statusvalues = (Status) => [
     Status.date
 ];
 
-export { createstatusquery, insertStatusquery, statusvalues };
+export { createstatusquery, insertStatusquery, statusvalues, createupdatesstatusquery, insertupdateStatusquery };

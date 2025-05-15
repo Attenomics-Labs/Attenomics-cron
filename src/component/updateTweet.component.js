@@ -45,7 +45,7 @@ const updatetweet = async (username) => {
         await client.query("COMMIT");
         console.log(`Created tweets are updated`);
     } catch (err) {
-        console.error("❌ updateMetrics aborted:", err);
+        console.error("❌ updatetweets aborted:", err);
     }
 };
 

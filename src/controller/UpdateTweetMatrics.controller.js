@@ -1,17 +1,40 @@
+import { today } from "../component/datetime.component.js";
 import { updatetweet } from "../component/updateTweet.component.js";
+import { getAllUser } from "../component/users.component.js";
 import { client } from "../DB/Postgress.DB.js";
+import { insertupdateStatusquery } from "../models/ScrapeStatus.model.js";
 
 const updateTweetMetricsDaily = async () => {
     try {
         // fetch all username from users
-        const users = await client.query(
-            `SELECT username FROM users`
-        ).then(val => val.rows.map(el => el['username']));
+        const date = today();
+        const users = await getAllUser();
+        let isexistuser = {};
+        await client.query(
+            `SELECT * FROM updatestatus WHERE date='${date}'`
+        ).then(val => {
+            val.rows.map(user => {
+                isexistuser[user['username']] = true;
+            });
+        });
         for (const username of users) {
-            updatetweet(username);
-            break;
+            if (isexistuser[username] != undefined) {
+                console.log(`${username} is alredy updated`);
+                continue;
+            }
+            const isexist = await client.query(
+                `SELECT * FROM updatestatus WHERE date='${date}' AND username='${username}'`
+            )
+            if (isexist.rows.length == 0) {
+                updatetweet(username);
+                const value = statusvalues({
+                    'username': username,
+                    'date': date,
+                });
+                await client.query(insertupdateStatusquery, value);
+                await client.query("COMMIT");
+            }
         }
-        // console.log(getDayIndex(2025-05-11 00:56:24));
     } catch (err) {
         console.error("❌ updateMetrics aborted:", err);
     }

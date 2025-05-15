@@ -4,6 +4,7 @@ import { scrapeAllUsers } from "../controller/ScrapeTweets.controller.js";
 import { updateSupporterRelationships } from "../controller/SupporterRelationship.controller.js";
 import { scrapeUsersnames } from "../controller/ScrapeUsersnames.controller.js";
 import { promisefunction } from "../utils/AsyncHandler.utils.js";
+import { updateTweetMetricsDaily } from "./updateTweet.component.js";
 
 
 const cronfunction = async () => {
@@ -18,16 +19,19 @@ const cronfunction = async () => {
                 // await promisefunction(deleteOldTweet());
 
                 console.log("scraping tweet");
-                await promisefunction(scrapeAllUsers());
+                // await promisefunction(scrapeAllUsers());
+
+                console.log("update prev tweets");
+                await promisefunction(updateTweetMetricsDaily());
 
                 console.log("computeRawPointsForAllUsers");
-                await promisefunction(computeAttentionPoints());
+                // await promisefunction(computeAttentionPoints());
 
                 console.log("normalizeAllUserPoints");
-                await promisefunction(normalizeAllUserPoints());
+                // await promisefunction(normalizeAllUserPoints());
 
                 console.log("creating graph from user and creator");
-                await promisefunction(updateSupporterRelationships());
+                // await promisefunction(updateSupporterRelationships());
 
                 resolve(true);
             } catch (error) {

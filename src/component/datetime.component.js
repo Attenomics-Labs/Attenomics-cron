@@ -1,6 +1,7 @@
 /** compute day-bucket 0–3 */
 const getDayIndex = (ts) => {
-    const age = Date.now() - ts * 1000;
+    const time = new Date(ts).getTime();
+    const age = Date.now() - time;
     const days = Math.floor(age / (24 * 60 * 60 * 1000));
     return days >= 0 && days <= 3 ? days : null;
 }
@@ -24,7 +25,7 @@ const today = () => {
 
 //generating sinceDate
 const getsinceDate = async () => {
-    const noofdate = 4;
+    const noofdate = 1;
     const sinceDate = new Date(Date.now() - (24 * noofdate) * 60 * 60 * 1000);
     const pad = n => String(n).padStart(2, "0");
     return [

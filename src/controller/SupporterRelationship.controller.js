@@ -30,10 +30,12 @@ export async function updateSupporterRelationships() {
         }
       });
     });
+    let idx = 0;
     for (const creator of creators) {
       const mention = "@" + creator;
       console.log(`🔍 Searching for tweets mentioning @${creator}…`);
       // find all supporter tweets in last 24 h
+      // console.log(tweets[creator]);
       if (tweets[creator] == undefined) {
         continue;
       }
@@ -103,7 +105,6 @@ export async function updateSupporterRelationships() {
         }
       }
     }
-    console.log(tweets['anymose96']);
     console.log("🔔 updateSupporterRelationships done");
   } catch (err) {
     console.error("❌ updateSupporterRelationships error:", err);

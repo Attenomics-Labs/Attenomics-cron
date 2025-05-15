@@ -59,10 +59,11 @@ export async function getTweetsByUsername(userName) {
  * Fetch multiple tweets (up to 50 per request) by their IDs
  */
 export async function getTweetsByIds(tweetIds) {
-  const batches = chunkArray(tweetIds, 50);
+  const batches = chunkArray(tweetIds, 100);
   const results = [];
   for (const batch of batches) {
     const idsParam = batch.map(encodeURIComponent).join(",");
+    console.log(idsParam);
     const { tweets } = await request(
       `/tweets?tweet_ids=${idsParam}`
     );

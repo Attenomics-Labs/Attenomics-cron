@@ -106,20 +106,7 @@ export async function scrapeTweets(username) {
     cursor = has_next_page ? next_cursor : null;
   } while (cursor);
 
-  return allRaw.map(t => ({
-    tweetID: t.id,
-    username: t.author.userName,
-    text: t.text,
-    timestamp: Math.floor(new Date(t.createdAt).getTime() / 1000),
-    conversationId: t.conversationId,
-    inReplyToStatusId: t.inReplyToId,
-    isReply: t.isReply,
-    likes: t.likeCount,
-    retweets: t.retweetCount,
-    replies: t.replyCount,
-    views: t.viewCount,
-    bookmarkCount: t.bookmarkCount
-  }));
+  return allRaw.map(t => (TweetModel(t)));
 }
 
 /**
@@ -127,20 +114,7 @@ export async function scrapeTweets(username) {
  */
 export async function scrapeTweetById(tweetID) {
   const t = await request(`/tweet/${encodeURIComponent(tweetID)}`);
-  return {
-    tweetID: t.id,
-    username: t.author.userName,
-    text: t.text,
-    timestamp: Math.floor(new Date(t.createdAt).getTime() / 1000),
-    conversationId: t.conversationId,
-    inReplyToStatusId: t.inReplyToId,
-    isReply: t.isReply,
-    likes: t.likeCount,
-    retweets: t.retweetCount,
-    replies: t.replyCount,
-    views: t.viewCount,
-    bookmarkCount: t.bookmarkCount
-  };
+  return TweetModel(t);
 }
 
 const adduserByusername = async (username) => {

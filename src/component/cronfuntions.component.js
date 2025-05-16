@@ -22,8 +22,8 @@ const cronfunction = async () => {
                 // console.log("scraping tweet");
                 // await promisefunction(scrapeAllUsers());
 
-                console.log("update prev tweets");
-                await promisefunction(updateTweetMetricsDaily());
+                // console.log("update prev tweets");
+                // await promisefunction(updateTweetMetricsDaily());
 
                 // console.log("computeRawPointsForAllUsers");
                 // await promisefunction(computeAttentionPoints());
@@ -31,11 +31,11 @@ const cronfunction = async () => {
                 // console.log("normalizeAllUserPoints");
                 // await promisefunction(normalizeAllUserPoints());
 
-                // console.log("creating graph from user and creator");
-                // await promisefunction(updateSupporterRelationships());
+                console.log("creating graph from user and creator");
+                await promisefunction(updateSupporterRelationships());
 
-                // console.log("processAllSupporters");
-                // await promisefunction(processAllSupporters());
+                console.log("processAllSupporters");
+                await promisefunction(processAllSupporters());
 
                 resolve(true);
             } catch (error) {

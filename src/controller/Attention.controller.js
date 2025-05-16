@@ -93,7 +93,7 @@ export async function computeAttentionPoints() {
           views_day3: tweet.views_day3 || 0,
           views_total: tweet.views_total || 0,
           replies: tweet.replies || 0,
-          // isQuoted: tweet.isQuoted || false,
+          isQuoted: tweet.isQuoted || false,
           isReply: tweet.is_reply || false,
           // isEdited: tweet.isEdited || false,
           tweetID: tweet.tweet_id,

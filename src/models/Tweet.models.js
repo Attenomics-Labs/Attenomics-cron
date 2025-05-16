@@ -77,6 +77,7 @@ const createTweetTableQuery = `
     conversation_id VARCHAR(50),
     in_reply_to_status_id VARCHAR(50),
     is_reply BOOLEAN DEFAULT FALSE,
+    is_quoted BOOLEAN DEFAULT FALSE,
     views INT DEFAULT 0,
     likes INT DEFAULT 0,
     replies INT DEFAULT 0,
@@ -118,12 +119,12 @@ const insertTweetQuery = `
     likes_day3, likes_total, replies_day0, replies_day1, replies_day2,
     replies_day3, replies_total, retweets_day0, retweets_day1, retweets_day2,
     retweets_day3, retweets_total, bookmark_count_day0, bookmark_count_day1,
-    bookmark_count_day2, bookmark_count_day3, bookmark_count_total
+    bookmark_count_day2, bookmark_count_day3, bookmark_count_total,is_quoted
   ) VALUES (
     $1, $2, $3, TO_TIMESTAMP($4), $5, $6, $7, $8, $9, $10,
     $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
     $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
-    $31, $32, $33, $34, $35, $36, $37
+    $31, $32, $33, $34, $35, $36, $37, $38
   )
   ON CONFLICT (tweet_id) DO NOTHING;
 `;
@@ -165,7 +166,8 @@ const Tweetvalues = (tweet) => [
     Math.round(parseFloat(tweet.bookmarkCount_day1 ?? tweet.bookmark_count_day1 ?? 0)), // $34: bookmark_count_day1
     Math.round(parseFloat(tweet.bookmarkCount_day2 ?? tweet.bookmark_count_day2 ?? 0)), // $35: bookmark_count_day2
     Math.round(parseFloat(tweet.bookmarkCount_day3 ?? tweet.bookmark_count_day3 ?? 0)), // $36: bookmark_count_day3
-    Math.round(parseFloat(tweet.bookmarkCount_total ?? tweet.bookmark_count_total ?? 0)) // $37: bookmark_count_total
+    Math.round(parseFloat(tweet.bookmarkCount_total ?? tweet.bookmark_count_total ?? 0)), // $37: bookmark_count_total
+    Boolean(tweet.isQuoted ?? false),
 ];
 
 const updateTweetvalues = (tweet) => [

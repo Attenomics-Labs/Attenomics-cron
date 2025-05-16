@@ -1,6 +1,7 @@
 import { getAllUser } from "../component/users.component.js";
 import { getWriteSession } from "../DB/neo4j.DB.js";
 import { client } from "../DB/Postgress.DB.js";
+import { insertSuppoterquery, supportervalues } from "../models/supporter.model.js";
 
 /**
  * Every 24 h, for each registered user (creator), find
@@ -66,7 +67,7 @@ export async function updateSupporterRelationships() {
           if (isReplyToCreator || isQuoteOfCreator || containsMention) {
             tweetsRes.push({
               supporter: supporter,
-              tweetID: t.tweetID,
+              tweetID: t.tweet_id,
               isReply: t.isReply,
               isQuoted: t.isQuoted,
               text: t.text

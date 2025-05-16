@@ -2,13 +2,13 @@ import { processUserSupporters } from "../component/addsuppoters.component.js";
 import { today } from "../component/datetime.component.js";
 import { getAllUser } from "../component/users.component.js";
 import { client } from "../DB/Postgress.DB.js";
-import { insertsuppoterStatusquery } from "../models/ScrapeStatus.model.js";
+import { insertsuppoterStatusquery, statusvalues } from "../models/ScrapeStatus.model.js";
 
 
 const processAllSupporters = async () => {
     try {
         // Get all users
-        const usernames = getAllUser();
+        const usernames = await getAllUser();
         const date = today();
         console.log(`Found ${usernames.length} users to process for supporter scores`);
         let isexistuser = {};
@@ -19,7 +19,7 @@ const processAllSupporters = async () => {
                 isexistuser[user['username']] = true;
             });
         });
-        for (let i = index; i < usernames.length; i++) {
+        for (let i = 0; i < usernames.length; i++) {
             const username = usernames[i];
             try {
                 if (isexistuser[username] != undefined) {
@@ -29,8 +29,10 @@ const processAllSupporters = async () => {
                 const isexist = await client.query(
                     `SELECT * FROM suppoterstatus WHERE date='${date}' AND username='${username}'`
                 )
+                console.log(isexist.rows);
                 if (isexist.rows.length == 0) {
                     await processUserSupporters(username);
+                    
                     const value = statusvalues({
                         'username': username,
                         'date': date,
@@ -39,7 +41,7 @@ const processAllSupporters = async () => {
                     await client.query("COMMIT");
                 }
             } catch (err) {
-                console.error(`❌ Error at @${username}: `, err.message);
+                console.error(`❌ Error at @${username}: `, err);
                 // stop here so next run picks up at the same index
                 return;
             }

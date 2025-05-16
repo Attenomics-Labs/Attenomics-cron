@@ -1,3 +1,6 @@
+import { client } from "../DB/Postgress.DB.js";
+import { getDayIndex } from "./datetime.component.js";
+
 const supporterwithtweets = async (username) => {
     const result = await client.query(
         `with support AS (

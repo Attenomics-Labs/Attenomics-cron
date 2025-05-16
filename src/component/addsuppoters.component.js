@@ -4,12 +4,11 @@ import { supporterwithtweets } from "./suppoterwithtweets.component.js";
 
 
 const processUserSupporters = async (username) => {
-    const session = neo4jDriver.session();
     try {
         if (username == undefined) {
             return;
         }
-        const payload = supporterwithtweets(username);
+        const payload = await supporterwithtweets(username);
         // Prepare payload for model API
         const modelPayload = {
             status: 200,
@@ -87,8 +86,6 @@ const processUserSupporters = async (username) => {
     } catch (error) {
         console.error(`Error processing user ${username}:`, error);
         return null;
-    } finally {
-        await session.close();
     }
 }
 

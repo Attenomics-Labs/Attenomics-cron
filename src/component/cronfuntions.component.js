@@ -5,6 +5,7 @@ import { updateSupporterRelationships } from "../controller/SupporterRelationshi
 import { scrapeUsersnames } from "../controller/ScrapeUsersnames.controller.js";
 import { promisefunction } from "../utils/AsyncHandler.utils.js";
 import { updateTweetMetricsDaily } from "../controller/UpdateTweetMatrics.controller.js";
+import { processAllSupporters } from "../controller/processAllSupporters.controller.js";
 
 
 const cronfunction = async () => {
@@ -32,6 +33,9 @@ const cronfunction = async () => {
 
                 console.log("creating graph from user and creator");
                 await promisefunction(updateSupporterRelationships());
+
+                console.log("processAllSupporters");
+                await promisefunction(processAllSupporters());
 
                 resolve(true);
             } catch (error) {

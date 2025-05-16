@@ -1,3 +1,4 @@
+import { processUserSupporters } from "../component/addsuppoters.component.js";
 import { getAllUser } from "../component/users.component.js";
 import { insertsuppoterStatusquery } from "../models/ScrapeStatus.model.js";
 
@@ -27,7 +28,7 @@ const processAllSupporters = async () => {
                     `SELECT * FROM suppoterstatus WHERE date='${date}' AND username='${username}'`
                 )
                 if (isexist.rows.length == 0) {
-                    // await addtweets(username);
+                    await processUserSupporters(username);
                     const value = statusvalues({
                         'username': username,
                         'date': date,

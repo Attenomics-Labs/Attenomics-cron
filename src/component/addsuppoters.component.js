@@ -91,3 +91,5 @@ const processUserSupporters = async (username) => {
         await session.close();
     }
 }
+
+export { processUserSupporters };

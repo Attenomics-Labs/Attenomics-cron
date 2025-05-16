@@ -14,9 +14,14 @@ const addAttentionstopostgress = async () => {
         ).then(val => val.records.map(el => el.get('A').properties));
         console.log("storing process started");
         Attention.map(async (Tweet, idx) => {
-            const values = Attentionvalues(Tweet);
-            console.log(`${values[0]} added ${idx}`);
-            await client.query(insertAttentionquery, values);
+            const isexist = await client.query(
+                `SELECT * FROM attentions WHERE username='${Tweet.username}' AND date=${Tweet.date}`
+            );
+            if (isexist.rows.length == 0) {
+                const values = Attentionvalues(Tweet);
+                console.log(`${values[0]} added ${idx}`);
+                await client.query(insertAttentionquery, values);
+            }
         });
         await client.query('COMMIT');
     } catch (error) {

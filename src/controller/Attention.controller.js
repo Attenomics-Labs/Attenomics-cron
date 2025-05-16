@@ -65,10 +65,51 @@ export async function computeAttentionPoints() {
       // Debug: log payload size
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
       // call your FastAPI batch endpoint
-      const apiRes = await fetch(`${modelendpoint}/compute_scores_batch`, {
+      const payload = {
+        tweets: tweets.map(tweet => ({
+          tweet: tweet.text,
+          likes: tweet.likes_total || 0,
+          likes_day0: tweet.likes_day0 || 0,
+          likes_day1: tweet.likes_day1 || 0,
+          likes_day2: tweet.likes_day2 || 0,
+          likes_day3: tweet.likes_day3 || 0,
+          likes_total: tweet.likes_total || 0,
+          retweets: tweet.retweets_total || 0,
+          retweets_day0: tweet.retweets_day0 || 0,
+          retweets_day1: tweet.retweets_day1 || 0,
+          retweets_day2: tweet.retweets_day2 || 0,
+          retweets_day3: tweet.retweets_day3 || 0,
+          retweets_total: tweet.retweets_total || 0,
+          bookmarkCount: tweet.bookmark_count_total || 0,
+          bookmarkCount_day0: tweet.bookmark_count_day0 || 0,
+          bookmarkCount_day1: tweet.bookmark_count_day1 || 0,
+          bookmarkCount_day2: tweet.bookmark_count_day2 || 0,
+          bookmarkCount_day3: tweet.bookmark_count_day3 || 0,
+          bookmarkCount_total: tweet.bookmark_count_total || 0,
+          views: tweet.views_total || 0,
+          views_day0: tweet.views_day0 || 0,
+          views_day1: tweet.views_day1 || 0,
+          views_day2: tweet.views_day2 || 0,
+          views_day3: tweet.views_day3 || 0,
+          views_total: tweet.views_total || 0,
+          replies: tweet.replies || 0,
+          // isQuoted: tweet.isQuoted || false,
+          isReply: tweet.is_reply || false,
+          // isEdited: tweet.isEdited || false,
+          tweetID: tweet.tweet_id,
+          username: tweet.username,
+          // name: tweet.name,
+          userId: tweet.userId,
+          timestamp: tweet.timestamp,
+          // permanentUrl: tweet.permanentUrl,
+          conversationId: tweet.conversation_id
+        }))
+      };
+      // call your FastAPI batch endpoint
+      const apiRes = await fetch(`${modelendpoint }/creator_tweet_score/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tweets })
+        body: JSON.stringify(payload)
       });
 
       if (apiRes.status === 422) {
@@ -83,23 +124,17 @@ export async function computeAttentionPoints() {
         continue;
       }
 
-      const { scores } = await apiRes.json();
+      const response = await apiRes.json();
+      const attentionScore = response.score || 0;
+      console.log(`    🧮 attentionScore=${attentionScore.toFixed(2)}`);
 
-      // sum attention_score
-      const rawPoints = scores.reduce(
-        (sum, s) => sum + (s.attention_score ?? 0),
-        0
-      );
-      console.log(`    🧮 rawPoints=${rawPoints.toFixed(2)}`);
-
-      console.log(rawPoints);
-
-      // Fixed Cypher query - create the Attentions node and connect it to User in one query
+      // Create the Attentions node and connect it to User
       const props = {
         username: username,
         date: date,
-        Attention: rawPoints
+        Attention: attentionScore
       };
+
       const values = Attentionvalues(props);
       await client.query(insertAttentionquery, values);
       await client.query("COMMIT");

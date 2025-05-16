@@ -9,7 +9,7 @@ const addTweettopostgress = async () => {
         // console.log(result);
 
         const Tweet = await session.run(
-            `Match (t:Tweet) SKIP 133205 return t`
+            `Match (t:Tweet) SKIP 0 return t`
         ).then(val => val.records.map(el => el.get('t').properties));
         // let len = Tweet.length / 100;
         console.log("storing process started");

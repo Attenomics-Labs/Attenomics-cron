@@ -25,13 +25,13 @@ const cronfunction = async () => {
                 await promisefunction(updateTweetMetricsDaily());
 
                 console.log("computeRawPointsForAllUsers");
-                // await promisefunction(computeAttentionPoints());
+                await promisefunction(computeAttentionPoints());
 
                 console.log("normalizeAllUserPoints");
-                // await promisefunction(normalizeAllUserPoints());
+                await promisefunction(normalizeAllUserPoints());
 
                 console.log("creating graph from user and creator");
-                // await promisefunction(updateSupporterRelationships());
+                await promisefunction(updateSupporterRelationships());
 
                 resolve(true);
             } catch (error) {

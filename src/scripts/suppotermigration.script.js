@@ -11,7 +11,7 @@ const addsuppoterstopostgress = async () => {
         // console.log(result);
         // skip = 0;
         const supporter = await session.run(
-            `MATCH p=(c)-[R:SUPPORTS]->(s) SKIP 69057 RETURN R,c,s Limit 10000;`
+            `MATCH p=(c)-[R:SUPPORTS]->(s) SKIP 0 RETURN R,c,s Limit 10000;`
         ).then(val => val.records.map(el => {
             return {
                 "creator": el.get('c').properties['username'],

@@ -125,43 +125,7 @@ const insertTweetQuery = `
     $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
     $31, $32, $33, $34, $35, $36, $37
   )
-  ON CONFLICT (tweet_id) DO UPDATE SET
-    username = EXCLUDED.username,
-    text = EXCLUDED.text,
-    timestamp = EXCLUDED.timestamp,
-    conversation_id = EXCLUDED.conversation_id,
-    in_reply_to_status_id = EXCLUDED.in_reply_to_status_id,
-    is_reply = EXCLUDED.is_reply,
-    views = EXCLUDED.views,
-    likes = EXCLUDED.likes,
-    replies = EXCLUDED.replies,
-    retweets = EXCLUDED.retweets,
-    bookmark_count = EXCLUDED.bookmark_count,
-    views_day0 = EXCLUDED.views_day0,
-    views_day1 = EXCLUDED.views_day1,
-    views_day2 = EXCLUDED.views_day2,
-    views_day3 = EXCLUDED.views_day3,
-    views_total = EXCLUDED.views_total,
-    likes_day0 = EXCLUDED.likes_day0,
-    likes_day1 = EXCLUDED.likes_day1,
-    likes_day2 = EXCLUDED.likes_day2,
-    likes_day3 = EXCLUDED.likes_day3,
-    likes_total = EXCLUDED.likes_total,
-    replies_day0 = EXCLUDED.replies_day0,
-    replies_day1 = EXCLUDED.replies_day1,
-    replies_day2 = EXCLUDED.replies_day2,
-    replies_day3 = EXCLUDED.replies_day3,
-    replies_total = EXCLUDED.replies_total,
-    retweets_day0 = EXCLUDED.retweets_day0,
-    retweets_day1 = EXCLUDED.retweets_day1,
-    retweets_day2 = EXCLUDED.retweets_day2,
-    retweets_day3 = EXCLUDED.retweets_day3,
-    retweets_total = EXCLUDED.retweets_total,
-    bookmark_count_day0 = EXCLUDED.bookmark_count_day0,
-    bookmark_count_day1 = EXCLUDED.bookmark_count_day1,
-    bookmark_count_day2 = EXCLUDED.bookmark_count_day2,
-    bookmark_count_day3 = EXCLUDED.bookmark_count_day3,
-    bookmark_count_total = EXCLUDED.bookmark_count_total;
+  ON CONFLICT (tweet_id) DO NOTHING;
 `;
 
 const Tweetvalues = (tweet) => [

@@ -1,7 +1,6 @@
 const createsuppotervaluequery = `
     CREATE TABLE IF NOT EXISTS supportersvalues (
     id SERIAL PRIMARY KEY,
-    creator_suppoter VARCHAR(255) NOT NULL UNIQUE,
     creator VARCHAR(255) NOT NULL,
     suppoter VARCHAR(255) NOT NULL,
     raw_score DECIMAL(20, 15) DEFAULT 0,
@@ -21,26 +20,18 @@ const createsuppoterquery = `
 
 const insertsuppotervaluequery = `
     INSERT INTO supporters(
-    creator_suppoter,
     creator,
     suppoter,
     raw_score,
     normalized_score,
     updated_at
 ) VALUES(
-    CONCAT($1, '_', $2),
     $1,
     $2,
     $3,
     $4,
     CURRENT_TIMESTAMP
-)
-ON CONFLICT(creator_suppoter) 
-DO UPDATE SET
-rawScore = $3,
-    normalizedScore = $4,
-    updated_at = CURRENT_TIMESTAMP
-RETURNING id;`;
+)RETURNING id;`;
 
 
 

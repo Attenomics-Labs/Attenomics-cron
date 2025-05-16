@@ -2,7 +2,7 @@ import { today } from "../component/datetime.component.js";
 import { updatetweet } from "../component/updateTweet.component.js";
 import { getAllUser } from "../component/users.component.js";
 import { client } from "../DB/Postgress.DB.js";
-import { insertupdateStatusquery } from "../models/ScrapeStatus.model.js";
+import { insertupdateStatusquery, statusvalues } from "../models/ScrapeStatus.model.js";
 
 const updateTweetMetricsDaily = async () => {
     try {
@@ -26,7 +26,7 @@ const updateTweetMetricsDaily = async () => {
                 `SELECT * FROM updatestatus WHERE date='${date}' AND username='${username}'`
             )
             if (isexist.rows.length == 0) {
-                updatetweet(username);
+                await updatetweet(username);
                 const value = statusvalues({
                     'username': username,
                     'date': date,

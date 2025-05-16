@@ -1,6 +1,6 @@
-import { client } from "../DB/Postgress.DB";
-import { insertsuppotervaluequery, supportvalues } from "../models/supporter.model";
-import { supporterwithtweets } from "./suppoterwithtweets.component";
+import { client } from "../DB/Postgress.DB.js";
+import { insertsuppotervaluequery, supportvalues } from "../models/supporter.model.js";
+import { supporterwithtweets } from "./suppoterwithtweets.component.js";
 
 
 const processUserSupporters = async (username) => {

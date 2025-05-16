@@ -19,23 +19,23 @@ const cronfunction = async () => {
                 // console.log("Delete older than 4 days tweets");
                 // await promisefunction(deleteOldTweet());
 
-                console.log("scraping tweet");
-                await promisefunction(scrapeAllUsers());
+                // console.log("scraping tweet");
+                // await promisefunction(scrapeAllUsers());
 
                 console.log("update prev tweets");
                 await promisefunction(updateTweetMetricsDaily());
 
-                console.log("computeRawPointsForAllUsers");
-                await promisefunction(computeAttentionPoints());
+                // console.log("computeRawPointsForAllUsers");
+                // await promisefunction(computeAttentionPoints());
 
-                console.log("normalizeAllUserPoints");
-                await promisefunction(normalizeAllUserPoints());
+                // console.log("normalizeAllUserPoints");
+                // await promisefunction(normalizeAllUserPoints());
 
-                console.log("creating graph from user and creator");
-                await promisefunction(updateSupporterRelationships());
+                // console.log("creating graph from user and creator");
+                // await promisefunction(updateSupporterRelationships());
 
-                console.log("processAllSupporters");
-                await promisefunction(processAllSupporters());
+                // console.log("processAllSupporters");
+                // await promisefunction(processAllSupporters());
 
                 resolve(true);
             } catch (error) {

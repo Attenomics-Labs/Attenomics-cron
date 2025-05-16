@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { createstatusquery, createupdatesstatusquery } from "../models/ScrapeStatus.model.js";
-import { createsuppoterquery } from "../models/supporter.model.js";
+import { createsuppoterquery, createsuppotervaluequery } from "../models/supporter.model.js";
 import { createusersquery } from "../models/User.Models.js";
 import { createvaluesquery } from "../models/Values.model.js";
 import { createreplysquery } from "../models/Reply.model.js";
@@ -37,6 +37,7 @@ const createTables = async () => {
         await client.query(createreplysquery);
         await client.query(createpostsquery);
         await client.query(createupdatesstatusquery);
+        await client.query(createsuppotervaluequery);
     } catch (error) {
         console.log("creating table Error", error);
     }

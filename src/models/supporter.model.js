@@ -19,7 +19,7 @@ const createsuppoterquery = `
 `;
 
 const insertsuppotervaluequery = `
-    INSERT INTO supporters(
+    INSERT INTO supportersvalues(
     creator,
     suppoter,
     raw_score,

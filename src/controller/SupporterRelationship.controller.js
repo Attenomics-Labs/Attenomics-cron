@@ -100,7 +100,7 @@ export async function updateSupporterRelationships() {
             "text": rec["text"],
           };
           const value = supportervalues(props);
-          console.log(value);
+          // console.log(value);
           await client.query(insertSuppoterquery, value);
           await client.query('COMMIT');
         }

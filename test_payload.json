@@ -1,0 +1,26 @@
+{
+  "status": 200,
+  "payload": {
+    "testuser": {
+      "SUPPORTS": [
+        {
+          "account_x": "supporteruser",
+          "Tweets": [
+            {
+              "tweet": "This is a test tweet",
+              "metric": {
+                "likes": 10,
+                "views": 100,
+                "retweets": 5,
+                "bookmarkCount": 3,
+                "replies": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "message": "Success",
+  "success": true
+} 

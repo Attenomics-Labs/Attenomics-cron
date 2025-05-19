@@ -26,6 +26,9 @@ const updatetweet = async (username) => {
             return;
         });
         let updates = [];
+        if (tweet_ids.length == 0) {
+            return;
+        }
         const tweets = await getTweetsByIds(tweet_id);
         console.log(`${tweets.length}`);
         tweets.map(t => {

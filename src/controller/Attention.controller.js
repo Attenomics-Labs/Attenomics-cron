@@ -70,6 +70,9 @@ export async function computeAttentionPoints() {
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
       // call your FastAPI batch endpoint
       // console.log(tweets[0].userId || usernametoid[username]);
+      if (tweets.length == 0) {
+
+      }
       const payload = {
         tweets: tweets.map(tweet => ({
           tweet: tweet.text,
@@ -176,16 +179,20 @@ export async function normalizeAllUserPoints() {
 
     for (let i = 0; i < recs.length; i++) {
       const { username, raw } = recs[i];
+
+      const norm = totalRaw > 0 ? (raw / totalRaw) * 2400 : 0;
+      const rank = i + 1;
       const isexist = await client.query(
         ` SELECT * FROM values WHERE date = ${date} AND username='${username}'`
       );
       if (isexist.rows.length != 0) {
-        console.log(`skiping user ${username}`);
+        console.log(`updating values for ${username}`);
+        await client.query(
+          `UPDATE values set norm = ${norm}, rank = ${rank} WHERE date = ${date} AND username='${username}`
+        );
+        await client.query('COMMIT');
         continue;
       }
-      const norm = totalRaw > 0 ? (raw / totalRaw) * 2400 : 0;
-      const rank = i + 1;
-
       const props = {
         username: username,
         date: date,

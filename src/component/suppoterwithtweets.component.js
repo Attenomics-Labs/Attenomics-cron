@@ -7,13 +7,12 @@ const supporterwithtweets = async (username) => {
                 SELECT * from supporters WHERE creator = '${username}'
             ),tweet As (
                 SELECT t.* from support s 
-                inner join tweets t on t.tweet_id = s.tweet_id AND timestamp < NOW() - INTERVAL '24 hours'
-             AND timestamp > NOW() - INTERVAL '4 days'
+                inner join tweets t on t.tweet_id = s.tweet_id AND timestamp > NOW() - INTERVAL '4 days'
             )
             select * from tweet;
             `
     ).then(el => el.rows);
-    console.log(result.length);
+    console.log(`no of tweets found is ${result.length}`)
     let payload = {};
     payload[username] = {
         'SUPPORTS': []
@@ -23,11 +22,12 @@ const supporterwithtweets = async (username) => {
         const tweet = el;
         const day = getDayIndex(tweet['timestamp']);
         if (day === null || day === undefined) {
-            console.log(`Warning: Null day index for tweet from ${tweet['username']}, timestamp: ${tweet['timestamp']}`);
+            console.log(`Null day index for tweet from ${tweet['username']}, timestamp: ${tweet['timestamp']}`);
             return; // Skip this tweet
         }
 
         if (Tweets[tweet['username']] == undefined) {
+
             let metric = {
                 // Ensure all metrics have default values of 0
                 likes: 0,

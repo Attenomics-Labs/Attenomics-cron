@@ -41,7 +41,7 @@ const processUserSupporters = async (username) => {
             }
 
             const supportScores = await modelResponse.json();
-            console.log(`Support scores for ${username}:, supportScores`);
+            console.log(`Support scores for ${username}:, ${supportScores}`);
 
             // Normalize scores to sum up to 100
             const creatorScores = supportScores[username];

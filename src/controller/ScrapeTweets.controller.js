@@ -20,6 +20,8 @@ export const scrapeAllUsers = async () => {
     await client.query(
       `SELECT * FROM status WHERE date='${date}'`
     ).then(val => {
+      
+    console.log(val.rows.length);
       val.rows.map(user => {
         isexistuser[user['username']] = true;
       });

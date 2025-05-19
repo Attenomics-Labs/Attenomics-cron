@@ -5,7 +5,7 @@ import { client } from "../DB/Postgress.DB.js";
 const getAllUser = async () => {
     try {
         const result = await client.query(
-            `SELECT username FROM users`
+            `SELECT username FROM users where is_blocked = false`
         ).then((val) => {
             return val.rows.map(el => el['username']);
         });

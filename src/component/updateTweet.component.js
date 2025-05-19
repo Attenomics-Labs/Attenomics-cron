@@ -15,7 +15,7 @@ const updatetweet = async (username) => {
             AND username = '${username}'
             ORDER BY timestamp DESC;`
         ).then(val => val.rows);
-        console.log(`📥 Loaded ${tweet_ids.length} tweets from Neo4j`);
+        console.log(`📥 Loaded ${tweet_ids.length} tweets from db`);
         let tweet_id = [];
         tweet_ids.map((el) => {
             const day = getDayIndex(el['timestamp']);
@@ -27,6 +27,7 @@ const updatetweet = async (username) => {
         });
         let updates = [];
         const tweets = await getTweetsByIds(tweet_id);
+        console.log(`${tweets.length}`);
         tweets.map(t => {
             const tweet = tweetByid[t.tweetID];
             const day = getDayIndex(t.timestamp * 1000);

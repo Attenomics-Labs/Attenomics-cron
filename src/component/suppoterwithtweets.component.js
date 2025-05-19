@@ -7,7 +7,8 @@ const supporterwithtweets = async (username) => {
                 SELECT * from supporters WHERE creator = '${username}'
             ),tweet As (
                 SELECT t.* from support s 
-                inner join tweets t on t.tweet_id = s.tweet_id
+                inner join tweets t on t.tweet_id = s.tweet_id AND timestamp < NOW() - INTERVAL '24 hours'
+             AND timestamp > NOW() - INTERVAL '4 days'
             )
             select * from tweet;
             `

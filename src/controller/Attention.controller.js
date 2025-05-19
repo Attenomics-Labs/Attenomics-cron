@@ -14,8 +14,8 @@ import { insertValuequery, normsvalues } from "../models/Values.model.js";
  * massage it into the exact shape your FastAPI endpoint wants.
  */
 
-const modelendpoint = "http://localhost:8000";
-// const modelendpoint = "https://1de3-103-120-255-1.ngrok-free.app";
+// const modelendpoint = "http://localhost:8000";
+const modelendpoint = "https://2882-103-201-151-235.ngrok-free.app";
 
 export async function computeAttentionPoints() {
   console.log("🔔 Starting computeAttentionPoints…");

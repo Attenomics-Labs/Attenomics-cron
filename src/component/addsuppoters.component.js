@@ -2,8 +2,7 @@ import { client } from "../DB/Postgress.DB.js";
 import { insertsuppotervaluequery, supportvalues } from "../models/supporter.model.js";
 import { supporterwithtweets } from "./suppoterwithtweets.component.js";
 
-const modelendpoint = 'https://2882-103-201-151-235.ngrok-free.app';
-// const modelendpoint = 'http://localhost:8000';
+
 
 const processUserSupporters = async (username) => {
     try {
@@ -21,7 +20,7 @@ const processUserSupporters = async (username) => {
 
         // Call the model API
         try {
-            const modelResponse = await fetch(`${modelendpoint}/aggregate_user_scores/`, {
+            const modelResponse = await fetch(`${process.env.MODEL_END_POINT}/aggregate_user_scores/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

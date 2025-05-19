@@ -14,9 +14,6 @@ import { insertValuequery, normsvalues } from "../models/Values.model.js";
  * massage it into the exact shape your FastAPI endpoint wants.
  */
 
-// const modelendpoint = "http://localhost:8000";
-const modelendpoint = "https://2882-103-201-151-235.ngrok-free.app";
-
 export async function computeAttentionPoints() {
   console.log("🔔 Starting computeAttentionPoints…");
   const session = getWriteSession();
@@ -27,13 +24,20 @@ export async function computeAttentionPoints() {
     //   `MATCH (u:User) RETURN u.username AS username`
     // );
     const usersRes = await client.query(
-      `SELECT username FROM users;`
+      `SELECT username, name, user_id FROM users WHERE is_blocked = false;`
     );
     if (usersRes.rows.length == 0) {
       console.log("User Not Found");
       return;
     }
-    const usernames = usersRes.rows.map(r => r['username']);
+    let usernames = [];
+    let usernametoname = {};
+    let usernametoid = {};
+    usersRes.rows.map(r => {
+      usernames.push(r['username']);
+      usernametoname[r['username']] = r['name'];
+      usernametoid[r['username']] = r['user_id'];
+    });
     console.log(`👥 Found ${usernames.length} users`);
     // 2) for each user
     let cnt = 0;
@@ -65,6 +69,7 @@ export async function computeAttentionPoints() {
       // Debug: log payload size
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
       // call your FastAPI batch endpoint
+      // console.log(tweets[0].userId || usernametoid[username]);
       const payload = {
         tweets: tweets.map(tweet => ({
           tweet: tweet.text,
@@ -95,18 +100,18 @@ export async function computeAttentionPoints() {
           replies: tweet.replies || 0,
           isQuoted: tweet.isQuoted || false,
           isReply: tweet.is_reply || false,
-          // isEdited: tweet.isEdited || false,
+          isEdited: tweet.isEdited || false,
           tweetID: tweet.tweet_id,
           username: tweet.username,
-          // name: tweet.name,
-          userId: tweet.userId,
+          name: tweet.name || usernametoname[username],
+          userId: tweet.userId || usernametoid[username],
           timestamp: tweet.timestamp,
-          // permanentUrl: tweet.permanentUrl,
+          permanentUrl: tweet.permanentUrl || "",
           conversationId: tweet.conversation_id
         }))
       };
       // call your FastAPI batch endpoint
-      const apiRes = await fetch(`${modelendpoint }/creator_tweet_score/`, {
+      const apiRes = await fetch(`${process.env.MODEL_END_POINT}/creator_tweet_score/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

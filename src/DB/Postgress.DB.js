@@ -6,6 +6,7 @@ import { createvaluesquery } from "../models/Values.model.js";
 import { createreplysquery } from "../models/Reply.model.js";
 import { createpostsquery } from "../models/posts.model.js";
 import { createTweetTableQuery } from "../models/Tweet.models.js";
+import { createTweetvectorTableQuery } from "../models/tweetvector.model.js";
 
 const connectionString = `postgresql://${process.env.RDS_USERNAME}:${process.env.RDS_PASS}@${process.env.RDS_DOMAIN}:${process.env.RDS_PORT}/${process.env.DB_NAME}`;
 
@@ -39,6 +40,7 @@ const createTables = async () => {
         await client.query(createupdatesstatusquery);
         await client.query(createsuppotervaluequery);
         await client.query(createsuppoterstatusquery);
+        await client.query(createTweetvectorTableQuery);
     } catch (error) {
         console.log("creating table Error", error);
     }

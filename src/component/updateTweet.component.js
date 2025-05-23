@@ -11,7 +11,7 @@ const updatetweet = async (username) => {
             `SELECT *
             FROM tweets
             WHERE timestamp < NOW() - INTERVAL '24 hours'
-            AND timestamp > NOW() - INTERVAL '4 days'
+            AND timestamp > NOW() - INTERVAL '2 days'
             AND username = '${username}'
             ORDER BY timestamp DESC;`
         ).then(val => val.rows);

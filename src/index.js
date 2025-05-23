@@ -4,10 +4,9 @@ import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import cron from "node-cron";
-import { verifyConnectivity } from "./DB/neo4j.DB.js";
 import { cronfunction } from "./component/cronfuntions.component.js";
 import { connectDB } from "./DB/Postgress.DB.js";
-import { addsuppoterstopostgress } from "./scripts/suppotermigration.script.js";
+import { tweetembedding } from "./script/tweetsembedding.script.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,7 +26,8 @@ const PORT = process.env.PORT || 8001;
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`✅ Server running on port ${PORT}`);
-  await cronfunction();
+  // await cronfunction();
+  await tweetembedding();
 });
 
 // cron.schedule("0 0 * * *", cronfunction);

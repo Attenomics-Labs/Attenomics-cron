@@ -22,8 +22,8 @@ const cronfunction = async () => {
                 console.log("scraping tweet");
                 await promisefunction(scrapeAllUsers());
 
-                console.log("update prev tweets");
-                await promisefunction(updateTweetMetricsDaily());
+                // console.log("update prev tweets");
+                // await promisefunction(updateTweetMetricsDaily());
 
                 console.log("computeRawPointsForAllUsers");
                 await promisefunction(computeAttentionPoints());

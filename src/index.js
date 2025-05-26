@@ -20,13 +20,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(resolve(__dirname, "../public")));
 
 const PORT = process.env.PORT || 8001;
-
+ 
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`✅ Server running on port ${PORT}`);
-  await cronfunction();
-  // await tweetqdrant();
-  // await jinaembeddings();
+  // await cronfunction();
+  await tweetqdrant();
 });
 
 // cron.schedule("0 0 * * *", cronfunction);

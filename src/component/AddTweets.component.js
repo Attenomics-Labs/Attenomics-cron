@@ -93,6 +93,7 @@ export const addtweets = async (username) => {
           });
         }
       } else {
+        console.log(`  updating ${t.tweetID}`);
         const tweet = seen[t.tweetID];
         const day = getDayIndex(t.timestamp);
         console.log(`updating values of ${t.tweetID}`);
@@ -110,7 +111,6 @@ export const addtweets = async (username) => {
     tweetarr.map(async (el) => {
       if (el.username == undefined) {
         el.username = username;
-        // console.log(el.username);
       }
       const values = Tweetvalues(el);
       const postvalue = postvalues({
@@ -134,13 +134,13 @@ export const addtweets = async (username) => {
 
     console.log(`Created  tweets with rely relationships`);
 
-    // updates.map(async el => {
-    //     const values = updateTweetvalues(el);
-    //     await client.query(updateTweetQuery, values);
-    // });
+    updates.map(async el => {
+        const values = updateTweetvalues(el);
+        await client.query(updateTweetQuery, values);
+    });
 
-    // await client.query("COMMIT");
-    // console.log(`Created tweets are updated`);
+    await client.query("COMMIT");
+    console.log(`Created tweets are updated`);
   } catch (err) {
     console.error("addtweets:", err);
     throw err;

@@ -65,7 +65,6 @@ const tweetqdrant = async () => {
     await vectorDB.initialize();
     const usernames = await getAllUser();
     console.log(usernames.length);
-    let idx = 0;
     for (const username of usernames) {
       const tweets = await client
         .query(`SELECT * FROM tweets WHERE username ='${username}'`)
@@ -76,7 +75,8 @@ const tweetqdrant = async () => {
         const isexist = await vectorDB.pointexist(parseInt(tweet.tweet_id));
         // console.log(isexist);
         if (isexist) {
-          continue;
+          // continue;
+          break;
         }
         // return;
         const text = tweet["text"]
@@ -94,7 +94,6 @@ const tweetqdrant = async () => {
         const pagecontent = `
         Tweet by @${username} at ${timestamp}:
         ${text}
-        Engagement Metrics: {engagement_context}
         Tweet Type: ${tweet["is_reply"] == true ? "Reply" : "Original Tweet"}
         views: ${tweet["views_total"] || 0}, likes: ${
           tweet["likes_total"] || 0
@@ -126,6 +125,7 @@ const tweetqdrant = async () => {
             pagecontent: pagecontent,
           },
         };
+        console.log(tweet.tweet_id);
         payload.push(correctStructure);
         // break;
       }

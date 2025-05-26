@@ -25,7 +25,7 @@ const today = () => {
 
 //generating sinceDate
 const getsinceDate = async () => {
-    const noofdate = 1;
+    const noofdate = 2;
     const sinceDate = new Date(Date.now() - (24 * noofdate) * 60 * 60 * 1000);
     const pad = n => String(n).padStart(2, "0");
     return [

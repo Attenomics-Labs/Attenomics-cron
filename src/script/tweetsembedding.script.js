@@ -75,8 +75,9 @@ const tweetqdrant = async () => {
         const isexist = await vectorDB.pointexist(parseInt(tweet.tweet_id));
         // console.log(isexist);
         if (isexist) {
-          // continue;
-          break;
+        console.log(`skiping the tweet ${tweet.tweet_id} alredy done`);
+          continue;
+          // break;
         }
         // return;
         const text = tweet["text"]

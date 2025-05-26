@@ -34,7 +34,7 @@ export const addtweets = async (username) => {
       return true;
     });
 
-    // which ones already in Neo4j?
+    // which ones already in PG?
     let seen = {};
     await Promise.all(
       recent.map((t) =>

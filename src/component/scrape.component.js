@@ -89,13 +89,16 @@ export async function getTweetById(tweetId) {
  * paging through every page via next_cursor —————
  */
 export async function scrapeTweets(username) {
-  const since = await getsinceDate();
+  const since = await getsinceDate(2);
+  const until = await getsinceDate(1);
   const allRaw = [];
   let cursor = "";  // start with empty string for first page
-  console.log(`since ${since}`);
+  // console.log(`since ${since}`);
   do {
     // build path, including cursor if set
-    const q = encodeURIComponent(`from:${username} since:${since}`);
+    const q = encodeURIComponent(`from:${username} since:${since} until:${until}`);
+    console.log(q);
+    break;
     let path = `/tweet/advanced_search?queryType=Latest&query=${q}`;
     if (cursor) path += `&cursor=${encodeURIComponent(cursor)}`;
 

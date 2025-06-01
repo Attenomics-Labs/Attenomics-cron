@@ -10,7 +10,7 @@ import { insertValuequery, normsvalues } from "../models/Values.model.js";
 
 
 /**
- * Take a raw Neo4j Tweet node’s `.properties` and
+ * Take a raw Neo4j Tweet node's `.properties` and
  * massage it into the exact shape your FastAPI endpoint wants.
  */
 

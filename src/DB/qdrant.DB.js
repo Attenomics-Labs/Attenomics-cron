@@ -105,6 +105,23 @@ class QdrantVectorDB {
     }
   }
 
+  // Get Points
+
+  async getPoints() {
+    try {
+      const points = await this.client.scroll("tweets", {
+        with_payload: true,
+        with_vector: false,
+        limit: 2000,
+      });
+
+      return points.points;
+    } catch (error) {
+      console.error("Error retrieving points:", error);
+      throw error;
+    }
+  }
+
   // Get point by ID
   async getPoint(pointId) {
     try {

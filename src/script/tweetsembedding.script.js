@@ -6,14 +6,23 @@ import { QdrantVectorDB } from "../DB/qdrant.DB.js";
 
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 
+import fs from "fs";
+import path from "path";
+
 dotenv.config({ path: ".env" });
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const vectorDB = new QdrantVectorDB();
 
-const sleep = async (ms) => {
-  return await new Promise((resolve) => setTimeout(resolve, ms));
+const gettweets = async () => {
+  await vectorDB.initialize();
+  const payload = await vectorDB.getPoints();
+  let PROGRESS_FILE = path.resolve(
+    process.cwd(),
+    "./public/embeddedtweets.json"
+  );
+  fs.writeFileSync(PROGRESS_FILE, JSON.stringify(payload, null, 2), "utf8");
 };
 
 // const embeddings = new OpenAIEmbeddings({
@@ -69,15 +78,15 @@ const tweetqdrant = async () => {
       const tweets = await client
         .query(`SELECT * FROM tweets WHERE username ='${username}'`)
         .then((val) => val.rows);
-      const payload = [];
-
+      let payload = [];
+      const batch = [];
       for (const tweet of tweets) {
         const isexist = await vectorDB.pointexist(parseInt(tweet.tweet_id));
         // console.log(isexist);
         if (isexist) {
-        console.log(`skiping the tweet ${tweet.tweet_id} alredy done`);
-          continue;
-          // break;
+          console.log(`skiping the tweet ${tweet.tweet_id} alredy done`);
+          // continue;
+          break;
         }
         // return;
         const text = tweet["text"]
@@ -128,17 +137,30 @@ const tweetqdrant = async () => {
         };
         console.log(tweet.tweet_id);
         payload.push(correctStructure);
+        if (payload.length == 500) {
+          batch.push(payload);
+          payload = [];
+        }
         // break;
       }
-      console.log(payload.length);
       if (payload.length > 0) {
-        console.log(`storing ${payload.length} embedded tweets for ${username}`)
-        await vectorDB.insertVectors(payload);
+        batch.push(payload);
       }
-      else{
+      console.log(
+        (batch.length == 0 ? 0 : batch.length - 1) * 500 + payload.length
+      );
+      if (batch.length > 0) {
+        console.log(
+          `storing ${
+            (batch.length == 0 ? 0 : batch.length - 1) * 500 + payload.length
+          } embedded tweets for ${username}`
+        );
+        for (const bt of batch) {
+          await vectorDB.insertVectors(bt);
+        }
+      } else {
         console.log(`skip for user ${username} is alredy embedded`);
       }
-      // break;
     }
   } catch (error) {
     console.log("Error ", error);
@@ -160,4 +182,4 @@ const calculate_engagement_score = (tweet) => {
   return Math.round((engagement / Math.max(views, 1)) * 100, 2);
 };
 
-export { tweetqdrant };
+export { tweetqdrant, gettweets };

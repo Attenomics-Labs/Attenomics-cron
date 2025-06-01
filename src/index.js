@@ -6,7 +6,7 @@ import { dirname, resolve } from "path";
 import cron from "node-cron";
 import { cronfunction } from "./component/cronfuntions.component.js";
 import { connectDB } from "./DB/Postgress.DB.js";
-import { tweetqdrant } from "./script/tweetsembedding.script.js";
+import { gettweets, tweetqdrant } from "./script/tweetsembedding.script.js";
 import { jinaembeddings } from "./script/jinaembeddings.script.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,8 +24,9 @@ const PORT = process.env.PORT || 8001;
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`✅ Server running on port ${PORT}`);
-  await cronfunction();
-  // await tweetqdrant();
+  // await cronfunction();
+  await tweetqdrant();
+  // await gettweets();
 });
 
 // cron.schedule("0 0 * * *", cronfunction);

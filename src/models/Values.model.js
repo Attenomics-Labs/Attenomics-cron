@@ -5,7 +5,9 @@ const createvaluesquery = `
     username VARCHAR(255) NOT NULL,
     date BIGINT NOT NULL,
     rank DECIMAL(20, 15) DEFAULT 0,
-    norm DECIMAL(20, 15) DEFAULT 0
+    norm DECIMAL(20, 15) DEFAULT 0,
+    final_rank DECIMAL(20, 15) DEFAULT 0,
+    avg_norm DECIMAL(20, 15) DEFAULT 0
     );
 `;
 

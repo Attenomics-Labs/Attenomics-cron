@@ -4,10 +4,11 @@ import { getWriteSession } from "../DB/neo4j.DB.js";
 import { normalizeTweet } from "../models/Tweet.models.js";
 import { today } from "../component/datetime.component.js";
 import { client } from "../DB/Postgress.DB.js";
-import { Attentionvalues, insertAttentionquery } from "../models/Attention.model.js";
+import {
+  Attentionvalues,
+  insertAttentionquery,
+} from "../models/Attention.model.js";
 import { insertValuequery, normsvalues } from "../models/Values.model.js";
-
-
 
 /**
  * Take a raw Neo4j Tweet node's `.properties` and
@@ -33,10 +34,10 @@ export async function computeAttentionPoints() {
     let usernames = [];
     let usernametoname = {};
     let usernametoid = {};
-    usersRes.rows.map(r => {
-      usernames.push(r['username']);
-      usernametoname[r['username']] = r['name'];
-      usernametoid[r['username']] = r['user_id'];
+    usersRes.rows.map((r) => {
+      usernames.push(r["username"]);
+      usernametoname[r["username"]] = r["name"];
+      usernametoid[r["username"]] = r["user_id"];
     });
     console.log(`👥 Found ${usernames.length} users`);
     // 2) for each user
@@ -62,19 +63,28 @@ export async function computeAttentionPoints() {
       );
 
       let tweets = tweetsRes.rows;
-      tweets.map(el => {
-        const milliseconds = new Date(el['timestamp']).getTime();
-        el['timestamp'] = milliseconds;
+      tweets.map((el) => {
+        const milliseconds = new Date(el["timestamp"]).getTime();
+        el["timestamp"] = milliseconds;
       });
       // Debug: log payload size
       console.log(`    • sending ${tweets.length} tweets to FastAPI`);
       // call your FastAPI batch endpoint
       // console.log(tweets[0].userId || usernametoid[username]);
       if (tweets.length == 0) {
+        const props = {
+          username: username,
+          date: date,
+          Attention: 0,
+        };
 
+        const values = Attentionvalues(props);
+        await client.query(insertAttentionquery, values);
+        await client.query("COMMIT");
+        continue;
       }
       const payload = {
-        tweets: tweets.map(tweet => ({
+        tweets: tweets.map((tweet) => ({
           tweet: tweet.text,
           likes: tweet.likes_total || 0,
           likes_day0: tweet.likes_day0 || 0,
@@ -110,15 +120,18 @@ export async function computeAttentionPoints() {
           userId: tweet.userId || usernametoid[username],
           timestamp: tweet.timestamp,
           permanentUrl: tweet.permanentUrl || "",
-          conversationId: tweet.conversation_id
-        }))
+          conversationId: tweet.conversation_id,
+        })),
       };
       // call your FastAPI batch endpoint
-      const apiRes = await fetch(`${process.env.MODEL_END_POINT}/creator_tweet_score/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const apiRes = await fetch(
+        `${process.env.MODEL_END_POINT}/creator_tweet_score/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (apiRes.status === 422) {
         // validation error: log body
@@ -140,7 +153,7 @@ export async function computeAttentionPoints() {
       const props = {
         username: username,
         date: date,
-        Attention: attentionScore
+        Attention: attentionScore,
       };
 
       const values = Attentionvalues(props);
@@ -167,9 +180,9 @@ export async function normalizeAllUserPoints() {
     if (res.rows.length == 0) {
       return;
     }
-    const recs = res.rows.map(r => ({
+    const recs = res.rows.map((r) => ({
       username: r["username"],
-      raw: Number(r["attention_score"] ?? 0)
+      raw: Number(r["attention_score"] ?? 0),
     }));
     const totalRaw = recs.reduce((sum, x) => sum + x.raw, 0);
     console.log(`  📊 Total rawPoints = ${totalRaw.toFixed(2)}`);
@@ -190,20 +203,22 @@ export async function normalizeAllUserPoints() {
         await client.query(
           `UPDATE values set norm = ${norm}, rank = ${rank} WHERE date = ${date} AND username='${username}`
         );
-        await client.query('COMMIT');
+        await client.query("COMMIT");
         continue;
       }
       const props = {
         username: username,
         date: date,
         norm: norm,
-        rank: rank
-      }
+        rank: rank,
+      };
       console.log(props);
       const value = normsvalues(props);
       await client.query(insertValuequery, value);
-      await client.query('COMMIT');
-      console.log(`    ✨ @${username}: normalized = ${norm.toFixed(2)}, rank = ${rank}`);
+      await client.query("COMMIT");
+      console.log(
+        `    ✨ @${username}: normalized = ${norm.toFixed(2)}, rank = ${rank}`
+      );
     }
     console.log("🔔 normalizeAllUserPoints done");
   } catch (err) {

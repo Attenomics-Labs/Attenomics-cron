@@ -112,7 +112,7 @@ class QdrantVectorDB {
       const points = await this.client.scroll("tweets", {
         with_payload: true,
         with_vector: false,
-        limit: 2000,
+        limit: 10000,
       });
 
       return points.points;

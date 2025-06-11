@@ -15,7 +15,7 @@ export async function enhancedNormalizeAllUserPoints() {
   console.log(
     "🔔 Starting enhanced ranking system with supporters (PostgreSQL)…"
   );
-  const date = new Date(today()).getTime() -  86400000;; // make one day prev  date
+  const date = new Date(today()).getTime()- 86400000;; // make one day prev  date
 
   try {
     // Step 1: Get all users with their attention scores

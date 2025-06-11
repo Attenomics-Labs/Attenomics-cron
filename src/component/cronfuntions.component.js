@@ -16,11 +16,11 @@ const cronfunction = async () => {
   try {
     await new Promise(async (resolve, reject) => {
       try {
-        console.log("scraping tweet");
-        await promisefunction(scrapeAllUsers());
+        // console.log("scraping tweet");
+        // await promisefunction(scrapeAllUsers());
         
-        console.log("computeRawPointsForAllUsers");
-        await promisefunction(computeAttentionPoints());
+        // console.log("computeRawPointsForAllUsers");
+        // await promisefunction(computeAttentionPoints());
 
         console.log("normalizeAllUserPoints");
         await promisefunction(normalizeAllUserPoints());

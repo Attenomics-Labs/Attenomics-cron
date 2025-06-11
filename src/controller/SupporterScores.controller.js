@@ -9,7 +9,9 @@ const processAllSupporters = async () => {
     try {
         // Get all users
         const usernames = await getAllUser();
-        const date = "2025-05-16";
+        const date = "2025-06-11"; today();
+        // console.log(date);
+        // return;
         console.log(`Found ${usernames.length} users to process for supporter scores`);
         let isexistuser = {};
         await client.query(

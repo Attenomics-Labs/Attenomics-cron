@@ -15,7 +15,7 @@ export async function enhancedNormalizeAllUserPoints() {
   console.log(
     "🔔 Starting enhanced ranking system with supporters (PostgreSQL)…"
   );
-  const date = new Date(today()).getTime()- 86400000;; // make one day prev  date
+  const date = new Date(today()).getTime(); // make one day prev  date
 
   try {
     // Step 1: Get all users with their attention scores
@@ -213,6 +213,17 @@ async function fetchAllSupportersData(usernames) {
   const yesterday = prevDate.toISOString().split("T")[0];
   const supportersData = {};
 
+    const date = await client
+      .query(
+        `select updated_at from supportersvalues order by updated_at desc limit 1`
+      )
+      .then((val) => val.rows[0]["updated_at"]);
+    // Get date in YYYY-MM-DD format
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const dateOnly = `${year}-${month}-${day}`;
+
   for (const username of usernames) {
     try {
       // Get supporters for this user from PostgreSQL supporters table
@@ -220,7 +231,7 @@ async function fetchAllSupportersData(usernames) {
       const supportersRes = await client.query(
         `SELECT suppoter, raw_score 
         FROM supportersvalues 
-        WHERE creator = '${username}' AND updated_at >= '${yesterday}'`
+        WHERE creator = '${username}' AND updated_at >= '${dateOnly}'`
       );
 
       const supporters = [];

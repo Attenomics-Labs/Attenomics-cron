@@ -22,14 +22,14 @@ const cronfunction = async () => {
         // console.log("computeRawPointsForAllUsers");
         // await promisefunction(computeAttentionPoints());
 
-        console.log("normalizeAllUserPoints");
-        await promisefunction(normalizeAllUserPoints());
+        // console.log("normalizeAllUserPoints");
+        // await promisefunction(normalizeAllUserPoints());
 
-        console.log("Avg normalizeAllUserPoints");
-        await promisefunction(AvgnormalizeAllUserPoints());
+        // console.log("Avg normalizeAllUserPoints");
+        // await promisefunction(AvgnormalizeAllUserPoints());
 
-        console.log("creating graph from user and creator");
-        await promisefunction(updateSupporterRelationships());
+        // console.log("creating graph from user and creator");
+        // await promisefunction(updateSupporterRelationships());
 
         console.log("processAllSupporters");
         await promisefunction(processAllSupporters());

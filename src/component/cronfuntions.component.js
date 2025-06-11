@@ -18,7 +18,7 @@ const cronfunction = async () => {
       try {
         console.log("scraping tweet");
         await promisefunction(scrapeAllUsers());
-
+        
         console.log("computeRawPointsForAllUsers");
         await promisefunction(computeAttentionPoints());
 

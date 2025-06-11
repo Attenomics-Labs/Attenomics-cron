@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 8001;
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`✅ Server running on port ${PORT}`);
-  // await cronfunction();
+  await cronfunction();
   // await tweetqdrant();
   // await gettweets();
 

@@ -18,12 +18,8 @@ import { insertValuequery, normsvalues } from "../models/Values.model.js";
 export async function computeAttentionPoints() {
   console.log("🔔 Starting computeAttentionPoints…");
   const session = getWriteSession();
-  const date = new Date(today()).getTime();
+  const date = new Date(today()).getTime() -  86400000;
   try {
-    // 1) load all usernames
-    // const usersRes = await session.run(
-    //   `MATCH (u:User) RETURN u.username AS username`
-    // );
     const usersRes = await client.query(
       `SELECT username, name, user_id FROM users WHERE is_blocked = false;`
     );
@@ -59,7 +55,7 @@ export async function computeAttentionPoints() {
       const tweetsRes = await client.query(
         `SELECT * FROM tweets 
         WHERE username = '${username}' 
-        AND timestamp > NOW() - INTERVAL '4 days';`
+        AND timestamp > NOW() - INTERVAL '2 days';`
       );
 
       let tweets = tweetsRes.rows;
@@ -171,7 +167,7 @@ export async function computeAttentionPoints() {
 export async function normalizeAllUserPoints() {
   console.log("🔔 Starting normalizeAllUserPoints…");
   const session = getWriteSession();
-  const date = new Date(today()).getTime();
+  const date = new Date(today()).getTime() -  86400000;
   try {
     // 1) load all Points for today
     const res = await client.query(

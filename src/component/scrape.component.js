@@ -98,7 +98,6 @@ export async function scrapeTweets(username) {
     // build path, including cursor if set
     const q = encodeURIComponent(`from:${username} since:${since} until:${until}`);
     console.log(q);
-    break;
     let path = `/tweet/advanced_search?queryType=Latest&query=${q}`;
     if (cursor) path += `&cursor=${encodeURIComponent(cursor)}`;
 

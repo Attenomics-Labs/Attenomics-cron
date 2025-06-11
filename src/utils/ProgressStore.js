@@ -7,7 +7,7 @@ import path from "path";
 let PROGRESS_FILE = path.resolve(process.cwd(), "./public/scrapeProgress.json");
 
 //reading from scrapeProgress file
-export function loadProgress(ispoint) {
+export function loadProgress(ispoint = false) {
   try {
     if (ispoint) {
       PROGRESS_FILE = path.resolve(process.cwd(), "genpointprogress.json");
@@ -19,13 +19,9 @@ export function loadProgress(ispoint) {
   }
 }
 
-export function saveProgress(progress, ispoint) {
+export function saveProgress(progress, ispoint = false) {
   if (ispoint) {
     PROGRESS_FILE = path.resolve(process.cwd(), "genpointprogress.json");
   }
-  fs.writeFileSync(
-    PROGRESS_FILE,
-    JSON.stringify(progress, null, 2),
-    "utf8"
-  );
+  fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress, null, 2), "utf8");
 }

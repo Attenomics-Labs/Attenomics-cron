@@ -144,7 +144,6 @@ export async function processUserSupporters(username) {
 }
 
 export async function processAllSupporters() {
-    const session = neo4jDriver.session();
     try {
         // Get all users
         const result = await session.run(

@@ -7,7 +7,7 @@ const supporterwithtweets = async (username) => {
                 SELECT * from supporters WHERE creator = '${username}'
             ),tweet As (
                 SELECT t.* from support s 
-                inner join tweets t on t.tweet_id = s.tweet_id AND timestamp > NOW() - INTERVAL '4 days'
+                inner join tweets t on t.tweet_id = s.tweet_id AND timestamp > NOW() - INTERVAL '10 days'
             )
             select * from tweet;
             `
@@ -20,7 +20,8 @@ const supporterwithtweets = async (username) => {
     let Tweets = {};
     result.map(el => {
         const tweet = el;
-        const day = getDayIndex(tweet['timestamp']);
+        let day = getDayIndex(tweet['timestamp']);
+        day = 0;
         if (day === null || day === undefined) {
             console.log(`Null day index for tweet from ${tweet['username']}, timestamp: ${tweet['timestamp']}`);
             return; // Skip this tweet

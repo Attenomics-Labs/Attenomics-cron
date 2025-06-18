@@ -25,10 +25,9 @@ app.listen(PORT, async () => {
   await connectDB();
   console.log(`✅ Server running on port ${PORT}`);
   await cronfunction();
+  
   // await tweetqdrant();
   // await gettweets();
-
-  // console.log(yesterday);
 });
 
 // cron.schedule("0 0 * * *", cronfunction);

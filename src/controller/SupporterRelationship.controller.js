@@ -19,7 +19,7 @@ export async function updateSupporterRelationships() {
     let tweets = {};
     await client.query(
       `SELECT * FROM tweets 
-        WHERE timestamp > NOW() - INTERVAL '1 day';`
+        WHERE timestamp > NOW() - INTERVAL '3 day';`
     ).then(async (twt) => {
       twt.rows.map(t => {
         const tweet = t;
@@ -100,7 +100,6 @@ export async function updateSupporterRelationships() {
             "text": rec["text"],
           };
           const value = supportervalues(props);
-          // console.log(value);
           await client.query(insertSuppoterquery, value);
           await client.query('COMMIT');
         }
@@ -111,33 +110,3 @@ export async function updateSupporterRelationships() {
     console.error("❌ updateSupporterRelationships error:", err);
   }
 }
-
-
-
-// const tweetsRes = await session.run(
-//   `
-//   MATCH (t:Tweet)
-//   WHERE
-//   t.username <> $creator
-//   AND
-//   t.timestamp >= $sinceTs
-//     AND (
-//       (t.isReply = true AND EXISTS {
-//         MATCH (orig:Tweet {tweetID: t.inReplyToStatusId, username: $creator})
-//       })
-//       OR
-//       (t.isQuoted = true AND EXISTS {
-//         MATCH (orig:Tweet {tweetID: t.conversationId, username: $creator})
-//       })
-//       OR
-//       t.text CONTAINS $mention
-//     )
-//   RETURN
-//     t.username      AS supporter,
-//     t.tweetID       AS tweetID,
-//     t.isReply       AS isReply,
-//     t.isQuoted      AS isQuoted,
-//     t.text          AS text
-//   `,
-//   { sinceTs, creator, mention }
-// );

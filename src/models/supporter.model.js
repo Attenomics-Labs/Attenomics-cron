@@ -15,7 +15,9 @@ const createsuppoterquery = `
     suppoter VARCHAR(255) NOT NULL,
     tweet_id VARCHAR(50) NOT NULL,
     text TEXT,
-    type VARCHAR(255));
+    type VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP 
+    );
 `;
 
 const insertsuppotervaluequery = `
@@ -41,13 +43,15 @@ const insertSuppoterquery = `
     suppoter,
     tweet_id,
     type,
-    text
+    text,
+    created_at,
 ) VALUES (
     $1, 
     $2, 
     $3,
     $4,
-    $5  
+    $5,
+    CURRENT_TIMESTAMP  
 )
 RETURNING id;`;
 
